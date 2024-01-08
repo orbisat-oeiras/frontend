@@ -4,9 +4,12 @@
 
   let canvas: HTMLCanvasElement;
 
-  export let title: (string | undefined)[];
+  export let title: string[] = [""];
   export let labels: Array<string>;
-  export let backgroundColor: Array<string>;
+  // Color of the small dots in each of the data points
+  export let backgroundColor: Array<string> = ["rgb(215,127,43)"];
+  // Color of the rest of the line
+  export let borderColor: Array<string> = ["rgb(215,127,43)"];
   export let data: number[];
   export let showLegends = false;
 
@@ -25,6 +28,7 @@
         datasets: [
           {
             backgroundColor,
+            borderColor,
             data,
           },
         ],
