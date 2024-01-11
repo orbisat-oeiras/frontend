@@ -46,6 +46,13 @@
       },
       // Other options related to the chart.
       options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+        maintainAspectRatio: false,
         plugins: {
           title: {
             display: true,
@@ -58,15 +65,13 @@
         },
       },
     });
-
-    // This event is called whenever the page is resized, and resizes the chart.
-    // Before this was added, when the page was resized, a weird glitch happened and it didnt look right.
-    // It is still not working perfectly.
-    window.addEventListener("resize", function () {
-      chart.resize();
-    });
   });
 </script>
 
 <!-- Bind the canvas for the graph with the canvas element -->
-<canvas bind:this={canvas}></canvas>
+<div
+  class="chart-container"
+  style="position: relative; height:25vh; width:30vw"
+>
+  <canvas bind:this={canvas}></canvas>
+</div>
