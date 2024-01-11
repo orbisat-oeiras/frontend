@@ -4,25 +4,36 @@
 
   let canvas: HTMLCanvasElement;
 
+  // The title of the chart.
+  // Added it in to show the titles.
+  // However, since it was easier to style it by adding an <h1> in the html page, it is unlikely to be used.
   export let title: string[] = [""];
+  // The labels that appear on the x axis.
+  // Since in this project it will mostly represent the time, it will likely be ["1", "2", "3", "4", "5"...].
   export let labels: Array<string>;
-  // Color of the small dots in each of the data points
+  // Color of the small dots in each of the data points.
   export let backgroundColor: Array<string> = ["rgb(215,127,43)"];
-  // Color of the rest of the line
+  // Color of the rest of the line.
   export let borderColor: Array<string> = ["rgb(215,127,43)"];
+  // The data (such as the value of the pressure or the temperature).
   export let data: number[];
+  // If true, shows a label for the line in the chart.
+  // I only added it because maybe we will have more than one line for the altitude chart.
   export let showLegends = false;
 
-  // This function runs when the chart is mounted to the DOM
+  // This function runs when the chart is mounted to the DOM.
   onMount(async () => {
-    // If we cant get the context, an error is thrown
+    // This is used so we can get a nice canvas to draw the chart on.
+    // If we cant get the context, an error is thrown.
     const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
     if (!ctx || !(ctx instanceof CanvasRenderingContext2D)) {
       throw new Error("Failed to get 2D context");
     }
-    // Create the chart
-    const chart = new Chart(ctx, {
+    // Create the chart.
+    const chart: Chart = new Chart(ctx, {
+      // The type of the chart (line, pie, bar, etc...). In this case it is always going to be a line chart.
       type: "line",
+      // This is associated with the data that is shown on the x and y axis, as well as the styling of the line.
       data: {
         labels,
         datasets: [
@@ -33,6 +44,7 @@
           },
         ],
       },
+      // Other options related to the chart.
       options: {
         plugins: {
           title: {
@@ -45,6 +57,13 @@
           },
         },
       },
+    });
+
+    // This event is called whenever the page is resized, and resizes the chart.
+    // Before this was added, when the page was resized, a weird glitch happened and it didnt look right.
+    // It is still not working perfectly.
+    window.addEventListener("resize", function () {
+      chart.resize();
     });
   });
 </script>

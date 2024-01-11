@@ -1,5 +1,17 @@
 <script lang="ts">
   import Chart from "../lib/components/Chart.svelte";
+  // This code is related to getting the data. It is still not working, so I left it commented.
+  /*
+  import { writable } from "svelte/store";
+  const data = writable([]);
+
+  const evtSource = new EventSource("api");
+
+  evtSource.onmessage = function (event) {
+    var dataobj = JSON.parse(event.data);
+    data.update((arr) => arr.concat(dataobj));
+  };
+  */
 </script>
 
 <body>
