@@ -60,16 +60,16 @@
               color: "rgb(215, 127, 43)",
               font: {
                 family: "Open Sans",
-                size: 30,
+                size: 20,
                 weight: "bold",
                 lineHeight: 1.2,
               },
-              padding: { top: 0, bottom: 35 },
+              padding: { top: 0, bottom: 17.5 },
               align: "start",
             },
           },
           y: {
-            beginAtZero: true,
+            beginAtZero: false,
           },
         },
         plugins: {
