@@ -60,7 +60,7 @@
               color: "rgb(215, 127, 43)",
               font: {
                 family: "Open Sans",
-                size: 30,
+                size: 20,
                 weight: "bold",
                 lineHeight: 1.2,
               },
@@ -69,7 +69,7 @@
             },
           },
           y: {
-            beginAtZero: true,
+            beginAtZero: false,
           },
         },
         plugins: {

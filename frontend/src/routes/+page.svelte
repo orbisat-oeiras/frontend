@@ -18,29 +18,29 @@
   <div class="graphs">
     <section>
       <Chart
-        labels={["1", "2", "3", "4"]}
-        data={[5, 3, 7, 2]}
+        labels={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]}
+        data={[1000, 990, 950, 900, 910, 920, 925, 930, 940, 950]}
         title={["Pressão"]}
       />
     </section>
     <section>
       <Chart
-        labels={["1", "2", "3", "4"]}
-        data={[5, 3, 7, 2]}
+        labels={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]}
+        data={[30, 31, 29, 28, 27, 26.5, 26, 25, 25, 24]}
         title={["Temperatura"]}
       />
     </section>
     <section>
       <Chart
-        labels={["1", "2", "3", "4"]}
-        data={[5, 3, 7, 2]}
+        labels={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]}
+        data={[0, 400, 980, 910, 805, 703, 605, 508, 401, 302]}
         title={["Altura"]}
       />
     </section>
   </div>
 
   <div class="images">
-    <h1>images go here</h1>
+    <img src="green.JPG" alt="green" height=400px class="center">
   </div>
 </body>
 
@@ -71,4 +71,11 @@
     background-color: rgb(53, 53, 54);
     color: rgb(231, 175, 111);
   }
+  .center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 30px;
+  width: 50%;
+}
 </style>
