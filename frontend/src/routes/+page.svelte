@@ -17,17 +17,26 @@
 <body>
   <div class="graphs">
     <section>
-      <Chart labels={["1", "2", "3", "4"]} data={[5, 3, 7, 2]} />
+      <Chart
+        labels={["1", "2", "3", "4"]}
+        data={[5, 3, 7, 2]}
+        title={["Pressão"]}
+      />
     </section>
-    <h1>Pressão</h1>
     <section>
-      <Chart labels={["1", "2", "3", "4"]} data={[5, 3, 7, 2]} />
+      <Chart
+        labels={["1", "2", "3", "4"]}
+        data={[5, 3, 7, 2]}
+        title={["Temperatura"]}
+      />
     </section>
-    <h1>Temperatura</h1>
     <section>
-      <Chart labels={["1", "2", "3", "4"]} data={[5, 3, 7, 2]} />
+      <Chart
+        labels={["1", "2", "3", "4"]}
+        data={[5, 3, 7, 2]}
+        title={["Altura"]}
+      />
     </section>
-    <h1>Altura</h1>
   </div>
 
   <div class="images">
@@ -49,17 +58,11 @@
     width: 30%;
     margin-right: 3%;
     margin-left: 3%;
-    color: rgb(215, 127, 43);
-    font-family: "Open Sans", sans-serif;
     position: absolute;
     top: 50%;
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
-  }
-  .graphs h1 {
-    padding-top: 0px;
-    margin-top: 0px;
   }
   .images {
     min-height: 100vh;

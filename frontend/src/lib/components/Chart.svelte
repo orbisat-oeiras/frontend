@@ -5,8 +5,6 @@
   let canvas: HTMLCanvasElement;
 
   // The title of the chart.
-  // Added it in to show the titles.
-  // However, since it was easier to style it by adding an <h1> in the html page, it is unlikely to be used.
   export let title: string[] = [""];
   // The labels that appear on the x axis.
   // Since in this project it will mostly represent the time, it will likely be ["1", "2", "3", "4", "5"...].
@@ -31,7 +29,8 @@
     }
     // Create the chart.
     const chart: Chart = new Chart(ctx, {
-      // The type of the chart (line, pie, bar, etc...). In this case it is always going to be a line chart.
+      // The type of the chart (line, pie, bar, etc...).
+      // In this case it is always going to be a line chart.
       type: "line",
       // This is associated with the data that is shown on the x and y axis, as well as the styling of the line.
       data: {
@@ -47,17 +46,33 @@
       // Other options related to the chart.
       options: {
         responsive: true,
+        // This option makes sure the chart is not trying to keep a defined aspect ratio,
+        // because that messes up with it when it is resized.
+        // Instead, the aspect ratio is defined by the div the chart is drawn on.
+        maintainAspectRatio: false,
         scales: {
+          x: {
+            display: true,
+            // This is all related to the way the title of the chart is displayed
+            title: {
+              display: true,
+              text: title,
+              color: "rgb(215, 127, 43)",
+              font: {
+                family: "Open Sans",
+                size: 30,
+                weight: "bold",
+                lineHeight: 1.2,
+              },
+              padding: { top: 0, bottom: 35 },
+              align: "start",
+            },
+          },
           y: {
             beginAtZero: true,
           },
         },
-        maintainAspectRatio: false,
         plugins: {
-          title: {
-            display: true,
-            text: title,
-          },
           legend: {
             display: showLegends,
             position: "bottom",
@@ -68,10 +83,14 @@
   });
 </script>
 
-<!-- Bind the canvas for the graph with the canvas element -->
+<!-- 
+  This div is used to set a height and width to the area where the chart is drawn, 
+  based on the size of the viewport (therefore adjusting the size of the charts based on the size of the screen).
+-->
 <div
   class="chart-container"
-  style="position: relative; height:25vh; width:30vw"
+  style="position: relative; height:28vh; width:30vw"
 >
+  <!-- Bind the canvas for the graph with the canvas element -->
   <canvas bind:this={canvas}></canvas>
 </div>
