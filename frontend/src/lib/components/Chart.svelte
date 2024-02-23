@@ -64,7 +64,7 @@
                 weight: "bold",
                 lineHeight: 1.2,
               },
-              padding: { top: 0, bottom: 35 },
+              padding: { top: 0, bottom: 17.5 },
               align: "start",
             },
           },
