@@ -89,7 +89,7 @@
 -->
 <div
   class="chart-container"
-  style="position: relative; height:28vh; width:30vw"
+  style="position: relative; height:32vh; width:30vw"
 >
   <!-- Bind the canvas for the graph with the canvas element -->
   <canvas bind:this={canvas}></canvas>

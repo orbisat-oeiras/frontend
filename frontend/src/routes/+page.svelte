@@ -1,25 +1,36 @@
 <script lang="ts">
   import Chart from "../lib/components/Chart.svelte";
   import Button from "../lib/components/Button.svelte";
-  // This code is related to getting the data. It is still not working, so I left it commented.
-  /*
-  import { writable } from "svelte/store";
-  const data = writable([]);
+  import { onMount } from "svelte";
 
-  const evtSource = new EventSource("api");
+ let data = {
+      time: ["0"], 
+      pressure: ["0"], 
+      altitude: ["0"],
+      temperature: ["0"]
+  }
+const eventSource = new EventSource('https://localhost:7097/api/SSE')
+eventSource.addEventListener("primary/altitude", (event) => {
+    data.time.push(String(Number(data.time[data.time.length-1])+1));
+    data.altitude.push(event.data.split("@")[0]);
+})
+eventSource.addEventListener("primary/temperature", (event) => {
+    data.temperature.push(event.data.split("@")[0]);
+})
+eventSource.addEventListener("primary/pressure", (event) => {
+    data.pressure.push(event.data.split("@")[0]);
+    console.log(data)
+})
 
-  evtSource.onmessage = function (event) {
-    var dataobj = JSON.parse(event.data);
-    data.update((arr) => arr.concat(dataobj));
-  };
-  */
+console.log(data);
+
 </script>
 
 <body>
   <div class="graphs">
     <section>
       <Chart
-        labels={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]}
+        labels={data.time}
         data={[1000, 990, 950, 900, 910, 920, 925, 930, 940, 950]}
         title={["Pressão"]}
       />
@@ -43,7 +54,10 @@
   <div class="images">
     <img src="green.JPG" alt="green" height=400px class="center">
       <div class="buttons">
-        <Button text="Hello"></Button>
+        <Button text="NDVI"></Button>
+        <Button text="GPS"></Button>
+        <Button text="ACL"></Button>
+        <Button text="LOG"></Button>
       </div>
   </div>
 </body>
