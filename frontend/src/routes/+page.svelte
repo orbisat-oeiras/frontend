@@ -5,22 +5,24 @@
 
  let data = {
       time: ["0"], 
-      pressure: ["0"], 
-      altitude: ["0"],
-      temperature: ["0"]
+      pressure: [0], 
+      altitude: [0],
+      temperature: [0]
   }
 const eventSource = new EventSource('https://localhost:7097/api/SSE')
 eventSource.addEventListener("primary/altitude", (event) => {
     data.time.push(String(Number(data.time[data.time.length-1])+1));
-    data.altitude.push(event.data.split("@")[0]);
+    data.altitude.push(Number(event.data.split("@")[0]));
 })
 eventSource.addEventListener("primary/temperature", (event) => {
-    data.temperature.push(event.data.split("@")[0]);
+    data.temperature.push(Number(event.data.split("@")[0]));
 })
 eventSource.addEventListener("primary/pressure", (event) => {
-    data.pressure.push(event.data.split("@")[0]);
+    data.pressure.push(Number(event.data.split("@")[0]));
     console.log(data)
 })
+
+$: data = data;
 
 console.log(data);
 
@@ -31,21 +33,21 @@ console.log(data);
     <section>
       <Chart
         labels={data.time}
-        data={[1000, 990, 950, 900, 910, 920, 925, 930, 940, 950]}
+        data={data.pressure}
         title={["Pressão"]}
       />
     </section>
     <section>
       <Chart
-        labels={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]}
-        data={[30, 31, 29, 28, 27, 26.5, 26, 25, 25, 24]}
+        labels={data.time}
+        data={data.temperature}
         title={["Temperatura"]}
       />
     </section>
     <section>
       <Chart
-        labels={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]}
-        data={[0, 400, 980, 910, 805, 703, 605, 508, 401, 302]}
+        labels={data.time}
+        data={data.altitude}
         title={["Altura"]}
       />
     </section>
