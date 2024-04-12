@@ -1,5 +1,6 @@
 <script lang="ts">
   import Chart from "../lib/components/Chart.svelte";
+  import Button from "../lib/components/Button.svelte";
   // This code is related to getting the data. It is still not working, so I left it commented.
   /*
   import { writable } from "svelte/store";
@@ -41,6 +42,9 @@
 
   <div class="images">
     <img src="green.JPG" alt="green" height=400px class="center">
+      <div class="buttons">
+        <Button text="Hello"></Button>
+      </div>
   </div>
 </body>
 
