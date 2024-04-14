@@ -18,6 +18,8 @@
   // If true, shows a label for the line in the chart.
   // I only added it because maybe we will have more than one line for the altitude chart.
   export let showLegends = false;
+  // The unit for the data
+  export let unit = "";
 
   // This function runs when the chart is mounted to the DOM.
   onMount(async () => {
@@ -67,9 +69,17 @@
               padding: { top: 0, bottom: 17.5 },
               align: "start",
             },
+            // This add the 's' (for seconds) to the data in the x axis.
+            ticks: {
+              callback: (value, index, ticks) => value + "s"
+            }
           },
           y: {
             beginAtZero: false,
+            // This add the unit to the data in the y axis.
+            ticks: {
+              callback: (value, index, ticks) => value + unit
+            }
           },
         },
         plugins: {

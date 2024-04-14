@@ -1,30 +1,48 @@
 <script lang="ts">
   import Chart from "../lib/components/Chart.svelte";
   import Button from "../lib/components/Button.svelte";
-  import { onMount } from "svelte";
+  import RealTime from "$lib/components/RealTime.svelte";
+  import { States } from "../types";
 
+  // This code is related to getting the data from the server.
+
+  // The data is organized as a dictionary of datapoints. 
+  // When applicable, these are devided as an array of arrays containing the time (String) followed by the data (Number).
  let data = {
-      time: ["0"], 
-      pressure: [0], 
-      altitude: [0],
-      temperature: [0]
+      pressure: [["0", 0]], 
+      altitude: [["0", 0]],
+      temperature: [["0", 0]],
+      latitude: 0,
+      longitude: 0
   }
-const eventSource = new EventSource('https://localhost:7097/api/SSE')
-eventSource.addEventListener("primary/altitude", (event) => {
-    data.time.push(String(Number(data.time[data.time.length-1])+1));
-    data.altitude.push(Number(event.data.split("@")[0]));
-})
-eventSource.addEventListener("primary/temperature", (event) => {
-    data.temperature.push(Number(event.data.split("@")[0]));
-})
-eventSource.addEventListener("primary/pressure", (event) => {
-    data.pressure.push(Number(event.data.split("@")[0]));
+  const eventSource = new EventSource('https://localhost:7097/api/SSE') // THE SERVER
+
+  // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
+  // The data received from the server is as follows:
+  // "'data'@{timestamp: 'timestamp', latitude 'latitude', longitude 'longitude'}"
+  eventSource.addEventListener("primary/altitude", (event) => {
+    let metadata = JSON.parse(event.data.split("@")[1])
+    data.altitude.push([metadata.timestamp, Number(event.data.split("@")[0])]);
+    data.latitude = Number(metadata.latitude)
+    data.longitude = Number(metadata.longitude)
+  })
+  eventSource.addEventListener("primary/temperature", (event) => {
+    let metadata = JSON.parse(event.data.split("@")[1])
+    data.temperature.push([JSON.parse(event.data.split("@")[1]).timestamp, Number(event.data.split("@")[0])]);
+    data.latitude = Number(metadata.latitude)
+    data.longitude = Number(metadata.longitude)
+  })
+  eventSource.addEventListener("primary/pressure", (event) => {
+    let metadata = JSON.parse(event.data.split("@")[1])
+    data.pressure.push([JSON.parse(event.data.split("@")[1]).timestamp, Number(event.data.split("@")[0])]);
+    data.latitude = Number(metadata.latitude)
+    data.longitude = Number(metadata.longitude)
     console.log(data)
-})
+  })
 
-$: data = data;
+  $: data = data;
 
-console.log(data);
+  let state: States = States.NDVI;
 
 </script>
 
@@ -32,34 +50,39 @@ console.log(data);
   <div class="graphs">
     <section>
       <Chart
-        labels={data.time}
-        data={data.pressure}
+        labels={data.pressure.map((x) => String(x[0]))} 
+        data={data.pressure.map((x) => Number(x[1]))}
         title={["Pressão"]}
+        unit="Pa"
       />
     </section>
     <section>
       <Chart
-        labels={data.time}
-        data={data.temperature}
+        labels={data.temperature.map((x) => String(x[0]))}
+        data={data.temperature.map((x) => Number(x[1]))}
         title={["Temperatura"]}
+        unit="ºC"
       />
     </section>
     <section>
       <Chart
-        labels={data.time}
-        data={data.altitude}
+        labels={data.altitude.map((x) => String(x[0]))}
+        data={data.altitude.map((x) => Number(x[1]))}
         title={["Altura"]}
+        unit="m"
       />
     </section>
   </div>
 
   <div class="images">
-    <img src="green.JPG" alt="green" height=400px class="center">
-      <div class="buttons">
-        <Button text="NDVI"></Button>
-        <Button text="GPS"></Button>
-        <Button text="ACL"></Button>
-        <Button text="LOG"></Button>
+    <div class="center">
+      <RealTime state={state}> </RealTime>
+    </div>
+    <div class="buttons">
+      <Button text="NDVI"></Button>
+      <Button text="GPS"></Button>
+      <Button text="ACL"></Button>
+      <Button text="LOG"></Button>
       </div>
   </div>
 </body>
