@@ -12,8 +12,8 @@
       pressure: [["0", 0]], 
       altitude: [["0", 0]],
       temperature: [["0", 0]],
-      latitude: 0,
-      longitude: 0
+      latitude: 36.9803848,
+      longitude: -25.0906212
   }
   const eventSource = new EventSource('https://localhost:7097/api/SSE') // THE SERVER
 
@@ -80,7 +80,7 @@
 
   <div class="images">
     <div class="center">
-      <RealTime state={state}> </RealTime>
+      <RealTime state={state} latitude={data.latitude} longitude={data.longitude}> </RealTime>
     </div>
     <div class="buttons">
       <Button text="NDVI" on:click={() => changeState(States.NDVI)}></Button>
