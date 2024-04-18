@@ -44,6 +44,10 @@
 
   let state: States = States.NDVI;
 
+  function changeState(st: States) {
+    state = st;
+  }
+
 </script>
 
 <body>
@@ -79,10 +83,10 @@
       <RealTime state={state}> </RealTime>
     </div>
     <div class="buttons">
-      <Button text="NDVI"></Button>
-      <Button text="GPS"></Button>
-      <Button text="ACL"></Button>
-      <Button text="LOG"></Button>
+      <Button text="NDVI" on:click={() => changeState(States.NDVI)}></Button>
+      <Button text="GPS" on:click={() => changeState(States.GPS)}></Button>
+      <Button text="ACL" on:click={() => changeState(States.ACL)}></Button>
+      <Button text="LOG" on:click={() => changeState(States.LOG)}></Button>
       </div>
   </div>
 </body>
