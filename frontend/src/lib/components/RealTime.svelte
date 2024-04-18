@@ -36,7 +36,7 @@
     let map: L.Map
 
     $: {
-        if (typeof map !== 'undefined') {
+        if (typeof map !== 'undefined' && latitude != 0) {
             L.marker([latitude, longitude]).addTo(map);
         }
     }

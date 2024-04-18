@@ -12,8 +12,8 @@
       pressure: [["0", 0]], 
       altitude: [["0", 0]],
       temperature: [["0", 0]],
-      latitude: 36.9803848,
-      longitude: -25.0906212
+      latitude: 0,
+      longitude: 0
   }
   const eventSource = new EventSource('https://localhost:7097/api/SSE') // THE SERVER
 
