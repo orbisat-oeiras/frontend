@@ -10,7 +10,7 @@
 
     // THIS CODE IS RELATED TO THE MAP TAB.
     // Location for the map to start at.
-    const location = [36.9803848, -25.0906212]
+    const location = [36.9536, -25.0499]
 
     function createMap(container: any) {
         let map = L.map(container).setView([location[0], location[1]], 13);
@@ -46,4 +46,8 @@
 
 {#if state == States.GPS}
     <div id="map" style="height:400px;width:100%" use:mapAction/>
+{:else if state == States.NDVI}
+    <div style="height:400px;width:100px">
+        OI
+    </div>
 {/if}
