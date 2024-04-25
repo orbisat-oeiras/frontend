@@ -131,7 +131,7 @@
     width: 50%;
   }
   .buttons {
-    width: 452px;
+    width: 474px;
     position: relative;
     margin-left: auto;
     margin-right: auto;
