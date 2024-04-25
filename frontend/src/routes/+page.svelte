@@ -3,6 +3,7 @@
   import Button from "../lib/components/Button.svelte";
   import RealTime from "$lib/components/RealTime.svelte";
   import { States } from "../types";
+  import Ndvi from "$lib/components/NDVI.svelte";
 
   // This code is related to getting the data from the server.
 
@@ -79,7 +80,7 @@
   </div>
 
   <div class="right-side">
-    <div class="real-time">
+    <div class="real-time" style="transform: translate({state == States.NDVI ? "-30%" : "0%"})">
       <RealTime state={state} latitude={data.latitude} longitude={data.longitude}> </RealTime>
     </div>
     <div class="buttons">
@@ -120,7 +121,6 @@
   }
   .real-time {
     position: relative;
-    transform: translate(-30%);
     display: block;
     margin-left: auto;
     margin-right: auto;
