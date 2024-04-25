@@ -80,7 +80,8 @@
   </div>
 
   <div class="right-side">
-    <div class="real-time" style="transform: translate({state == States.NDVI ? "-30%" : "0%"})">
+    <!-- style="transform: translate({state == States.NDVI ? "-30%" : "0%"})" -->
+    <div class="real-time" >
       <RealTime state={state} latitude={data.latitude} longitude={data.longitude}> </RealTime>
     </div>
     <div class="buttons">
