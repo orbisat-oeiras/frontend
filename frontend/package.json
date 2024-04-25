@@ -23,6 +23,7 @@
 	"type": "module",
 	"dependencies": {
 		"chart.js": "^4.4.1",
+		"hls.js": "^1.5.8",
 		"leaflet": "^1.9.4"
 	}
 }

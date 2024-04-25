@@ -78,8 +78,8 @@
     </section>
   </div>
 
-  <div class="images">
-    <div class="center">
+  <div class="right-side">
+    <div class="real-time">
       <RealTime state={state} latitude={data.latitude} longitude={data.longitude}> </RealTime>
     </div>
     <div class="buttons">
@@ -111,18 +111,20 @@
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
   }
-  .images {
+  .right-side {
     min-height: 100vh;
     float: right;
     width: 64%;
     background-color: rgb(53, 53, 54);
     color: rgb(231, 175, 111);
   }
-  .center {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  padding-top: 30px;
-  width: 50%;
-}
+  .real-time {
+    position: relative;
+    transform: translate(-30%);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 30px;
+    width: 50%; 
+  }
 </style>
