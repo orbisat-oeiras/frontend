@@ -124,7 +124,17 @@
     display: block;
     margin-left: auto;
     margin-right: auto;
-    padding-top: 30px;
-    width: 50%; 
+    padding-top: 70px;
+    width: 50%;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .buttons {
+    width: 480px;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0px;
+    padding-top: 0;
   }
 </style>
