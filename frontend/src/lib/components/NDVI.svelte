@@ -21,4 +21,12 @@
       }
     });
   </script>
-<video bind:this={videoElement} controls autoplay muted width="700"></video>
+<div >
+  <video bind:this={videoElement} controls autoplay muted></video>
+</div>
+<style>
+  video {
+    width: 40vw;
+    margin-left: -50%;
+  }
+</style>

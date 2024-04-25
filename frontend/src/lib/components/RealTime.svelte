@@ -20,7 +20,7 @@
 
 <style>
     .tab {
-        height:400px;
-        width:100px;
+        height:100%;
+        width:25%;
     }
 </style>

@@ -126,12 +126,12 @@
     margin-left: auto;
     margin-right: auto;
     padding-top: 70px;
-    width: 50%;
     margin-bottom: 0;
     padding-bottom: 0;
+    width: 50%;
   }
   .buttons {
-    width: 480px;
+    width: 452px;
     position: relative;
     margin-left: auto;
     margin-right: auto;

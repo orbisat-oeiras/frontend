@@ -38,4 +38,4 @@
     }
 </script>
 
-<div id="map" style="height:400px;width:100%" use:mapAction/>
+<div id="map" style="height:500px;width:100%" use:mapAction/>
