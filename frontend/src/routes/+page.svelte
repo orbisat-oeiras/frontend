@@ -3,7 +3,6 @@
   import Button from "../lib/components/Button.svelte";
   import RealTime from "$lib/components/RealTime.svelte";
   import { States } from "../types";
-  import Ndvi from "$lib/components/NDVI.svelte";
 
   // This code is related to getting the data from the server.
 
@@ -107,6 +106,7 @@
     width: 30%;
     margin-right: 3%;
     margin-left: 3%;
+    margin-top: 2%;
     position: absolute;
     top: 50%;
     -webkit-transform: translateY(-50%);
