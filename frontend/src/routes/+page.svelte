@@ -128,14 +128,15 @@
     padding-top: 70px;
     margin-bottom: 0;
     padding-bottom: 0;
-    width: 50%;
+    width: 57%;
+    top: 15vh;
   }
   .buttons {
     width: 474px;
     position: relative;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 0px;
+    margin-top: 17vh;
     padding-top: 0;
   }
 </style>

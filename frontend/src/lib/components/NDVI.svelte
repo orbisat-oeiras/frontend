@@ -26,7 +26,7 @@
 </div>
 <style>
   video {
-    width: 40vw;
+    width: 45vw;
     margin-left: -50%;
   }
 </style>
