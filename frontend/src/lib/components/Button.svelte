@@ -4,9 +4,11 @@
     // Declaring props
     export let text: String;
     export let bgColor: Color = "#020100";
+    export let isClicked: Boolean = false;
+    let clickedColor = "#282929";
 </script>
 
-<button on:click style="background-color: {bgColor}">
+<button on:click style="background-color: {isClicked ? clickedColor : bgColor}">
     {text}
 </button>
 

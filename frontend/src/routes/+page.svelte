@@ -85,10 +85,10 @@
       <RealTime state={state} latitude={data.latitude} longitude={data.longitude}> </RealTime>
     </div>
     <div class="buttons">
-      <Button text="NDVI" on:click={() => changeState(States.NDVI)}></Button>
-      <Button text="GPS" on:click={() => changeState(States.GPS)}></Button>
-      <Button text="ACL" on:click={() => changeState(States.ACL)}></Button>
-      <Button text="LOG" on:click={() => changeState(States.LOG)}></Button>
+      <Button text="NDVI" on:click={() => changeState(States.NDVI)} isClicked={state == States.NDVI}></Button>
+      <Button text="GPS" on:click={() => changeState(States.GPS)} isClicked={state == States.GPS}></Button>
+      <Button text="ACL" on:click={() => changeState(States.ACL)} isClicked={state == States.ACL}></Button>
+      <Button text="LOG" on:click={() => changeState(States.LOG)} isClicked={state == States.LOG}></Button>
       </div>
   </div>
 </body>
