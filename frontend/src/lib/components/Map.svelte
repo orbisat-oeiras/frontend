@@ -8,7 +8,8 @@
     // Location for the map to start at.
     const location = [36.9536, -25.0499]
 
-    function createMap(container: any) {
+    function createMap(container: HTMLElement) {
+        console.log(typeof(container));
         let map = L.map(container).setView([location[0], location[1]], 13);
         // We are getting the maps and tiles from https://www.openstreetmap.org/. 
         // It is a free service, but they require giving appropriate crediting (attribution).
@@ -20,7 +21,7 @@
         return map;
     }
     
-    function mapAction(container: any) {
+    function mapAction(container: HTMLElement) {
         map = createMap(container);
         return {
             destroy: () => {
