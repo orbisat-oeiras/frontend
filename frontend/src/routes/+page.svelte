@@ -97,6 +97,7 @@
   body {
     height: 100%;
     overflow: hidden;
+    overflow-y: hidden;
     margin: 0;
     padding: 0;
     min-width: fit-content;
@@ -106,7 +107,8 @@
     width: 30%;
     margin-right: 3%;
     margin-left: 3%;
-    margin-top: 2%;
+    margin-top: 1%;
+    margin-bottom: 2%;
     position: absolute;
     top: 50%;
     -webkit-transform: translateY(-50%);
@@ -114,7 +116,7 @@
     transform: translateY(-50%);
   }
   .right-side {
-    min-height: 100vh;
+    min-height:110vh;
     float: right;
     width: 64%;
     background-color: rgb(53, 53, 54);
