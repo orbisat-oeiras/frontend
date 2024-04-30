@@ -8,10 +8,11 @@
 
   // The data is organized as a dictionary of datapoints. 
   // When applicable, these are devided as an array of arrays containing the time (String) followed by the data (Number).
+  type Datapoint = [[String | undefined, Number | undefined]]
   type Data = {
-    pressure: [[String | undefined, Number | undefined]] 
-    altitude: [[String | undefined, Number | undefined]] 
-    temperature: [[String | undefined, Number | undefined]] 
+    pressure: Datapoint
+    altitude: Datapoint
+    temperature: Datapoint
     latitude: number
     longitude: number
   }
