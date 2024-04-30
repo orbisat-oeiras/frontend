@@ -8,13 +8,20 @@
 
   // The data is organized as a dictionary of datapoints. 
   // When applicable, these are devided as an array of arrays containing the time (String) followed by the data (Number).
- let data = {
-      pressure: [["0", 0]], 
-      altitude: [["0", 0]],
-      temperature: [["0", 0]],
-      latitude: 0,
-      longitude: 0
+  type Data = {
+    pressure: [[String | undefined, Number | undefined]] 
+    altitude: [[String | undefined, Number | undefined]] 
+    temperature: [[String | undefined, Number | undefined]] 
+    latitude: number
+    longitude: number
   }
+ let data: Data = {
+  pressure: [[undefined, undefined]], 
+  altitude: [[undefined, undefined]], 
+  temperature: [[undefined, undefined]], 
+  latitude: 0, 
+  longitude: 0}
+
   const eventSource = new EventSource('https://localhost:7097/api/SSE') // THE SERVER
 
   // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
