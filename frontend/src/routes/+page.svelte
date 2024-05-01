@@ -23,7 +23,11 @@
   latitude: 0, 
   longitude: 0}
 
-  const eventSource = new EventSource('https://localhost:7097/api/SSE') // THE SERVER
+  var backend = String(prompt("Insert the server - "))
+  var videoSource = String(prompt("Insert the video source - "))
+
+  const eventSource = new EventSource(backend == "" ? 'https://localhost:7097/api/SSE' : backend) // THE SERVER
+
 
   // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
   // The data received from the server is as follows:
@@ -89,7 +93,7 @@
   <div class="right-side">
     <!-- style="transform: translate({state == States.NDVI ? "-30%" : "0%"})" -->
     <div class="real-time" >
-      <RealTime state={state} latitude={data.latitude} longitude={data.longitude}> </RealTime>
+      <RealTime state={state} latitude={data.latitude} longitude={data.longitude} videoSource={videoSource}> </RealTime>
     </div>
     <div class="buttons">
       <Button text="NDVI" on:click={() => changeState(States.NDVI)} isClicked={state == States.NDVI}></Button>

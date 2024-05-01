@@ -4,6 +4,7 @@
     import Ndvi from "./NDVI.svelte";
 
     export let state: States = States.NDVI;
+    export let videoSource: string;
 
     // THIS CODE IS RELATED TO THE MAP TAB.
     export let latitude: number;
@@ -14,7 +15,7 @@
     <Map latitude={latitude} longitude={longitude} />
 {:else if state == States.NDVI}
     <div class="tab">
-        <Ndvi/>
+        <Ndvi videoSource={videoSource}/>
     </div>
 {/if}
 

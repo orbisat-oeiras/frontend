@@ -3,7 +3,8 @@
     import Hls from 'hls.js';
   
     let videoElement:HTMLVideoElement;
-    const loadSource = 'http://192.168.1.156:8000/master.m3u8'
+    export let videoSource: string;
+    const loadSource = (videoSource == "" ? String('http://192.168.1.156:8000/master.m3u8') : videoSource)
   
     onMount(async () => {
       if (Hls.isSupported()) {
