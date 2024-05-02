@@ -24,7 +24,7 @@
   longitude: 0}
 
   var backend = String(prompt("Insert the server (default is https://localhost:7097/api/SSE) - "))
-  var videoSource = String(prompt("Insert the video source (default is http://192.168.1.156:8000/master.m3u8) - "))
+  var videoSource = String(prompt("Insert the video source (default is http://localhost:8000/master.m3u8) - "))
 
   const eventSource = new EventSource(backend == "" ? 'https://localhost:7097/api/SSE' : backend) // THE SERVER
 

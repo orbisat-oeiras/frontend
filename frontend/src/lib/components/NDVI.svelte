@@ -4,7 +4,7 @@
   
     let videoElement:HTMLVideoElement;
     export let videoSource: string;
-    const loadSource = (videoSource == "" ? String('http://192.168.1.156:8000/master.m3u8') : videoSource)
+    const loadSource = (videoSource == "" ? String('http://localhost:8000/master.m3u8') : videoSource)
   
     onMount(async () => {
       if (Hls.isSupported()) {
