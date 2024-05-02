@@ -96,7 +96,7 @@
       <RealTime state={state} latitude={data.latitude} longitude={data.longitude} videoSource={videoSource}> </RealTime>
     </div>
     <div class="buttons">
-      <Button text="RAW" on:click={() => changeState(States.RAW)} isClicked={state == States.RAW}></Button>
+      <Button text="VIDEO" on:click={() => changeState(States.RAW)} isClicked={state == States.RAW}></Button>
       <Button text="GPS" on:click={() => changeState(States.GPS)} isClicked={state == States.GPS}></Button>
       <Button text="NDVI" on:click={() => changeState(States.NDVI)} isClicked={state == States.NDVI}></Button>
       <Button text="LOG" on:click={() => changeState(States.LOG)} isClicked={state == States.LOG}></Button>
