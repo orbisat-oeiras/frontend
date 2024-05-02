@@ -54,7 +54,7 @@
 
   $: data = data;
 
-  let state: States = States.NDVI;
+  let state: States = States.RAW;
 
   function changeState(st: States) {
     state = st;
