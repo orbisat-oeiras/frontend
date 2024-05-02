@@ -68,7 +68,7 @@
       <Chart
         labels={data.pressure.map((x) => String(x[0]))} 
         data={data.pressure.map((x) => Number(x[1]))}
-        title={["Pressão"]}
+        title={["Pressure"]}
         unit="Pa"
       />
     </section>
@@ -76,7 +76,7 @@
       <Chart
         labels={data.temperature.map((x) => String(x[0]))}
         data={data.temperature.map((x) => Number(x[1]))}
-        title={["Temperatura"]}
+        title={["Temperature"]}
         unit="ºC"
       />
     </section>
@@ -84,7 +84,7 @@
       <Chart
         labels={data.altitude.map((x) => String(x[0]))}
         data={data.altitude.map((x) => Number(x[1]))}
-        title={["Altura"]}
+        title={["Height"]}
         unit="m"
       />
     </section>
@@ -96,9 +96,9 @@
       <RealTime state={state} latitude={data.latitude} longitude={data.longitude} videoSource={videoSource}> </RealTime>
     </div>
     <div class="buttons">
-      <Button text="NDVI" on:click={() => changeState(States.NDVI)} isClicked={state == States.NDVI}></Button>
+      <Button text="RAW" on:click={() => changeState(States.RAW)} isClicked={state == States.RAW}></Button>
       <Button text="GPS" on:click={() => changeState(States.GPS)} isClicked={state == States.GPS}></Button>
-      <Button text="ACL" on:click={() => changeState(States.ACL)} isClicked={state == States.ACL}></Button>
+      <Button text="NDVI" on:click={() => changeState(States.NDVI)} isClicked={state == States.NDVI}></Button>
       <Button text="LOG" on:click={() => changeState(States.LOG)} isClicked={state == States.LOG}></Button>
       </div>
   </div>
@@ -146,7 +146,7 @@
     top: 15vh;
   }
   .buttons {
-    width: 474px;
+    width: 484px;
     position: relative;
     margin-left: auto;
     margin-right: auto;

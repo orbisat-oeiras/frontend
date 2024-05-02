@@ -13,7 +13,7 @@
 
 {#if state == States.GPS}
     <Map latitude={latitude} longitude={longitude} />
-{:else if state == States.NDVI}
+{:else if state == States.RAW}
     <div class="tab">
         <Ndvi videoSource={videoSource}/>
     </div>
