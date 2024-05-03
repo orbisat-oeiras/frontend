@@ -99,7 +99,6 @@
       <Button text="VIDEO" on:click={() => changeState(States.RAW)} isClicked={state == States.RAW}></Button>
       <Button text="GPS" on:click={() => changeState(States.GPS)} isClicked={state == States.GPS}></Button>
       <Button text="NDVI" on:click={() => changeState(States.NDVI)} isClicked={state == States.NDVI}></Button>
-      <Button text="LOG" on:click={() => changeState(States.LOG)} isClicked={state == States.LOG}></Button>
       </div>
   </div>
 </body>
@@ -146,7 +145,7 @@
     top: 15vh;
   }
   .buttons {
-    width: 484px;
+    width: 390px;
     position: relative;
     margin-left: auto;
     margin-right: auto;

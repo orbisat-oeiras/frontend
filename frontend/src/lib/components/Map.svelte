@@ -6,7 +6,7 @@
     export let longitude: number;
 
     // Location for the map to start at.
-    const location = [36.9703339, -25.125946]
+    const location = [36.9503339, -25.080000]
 
     function createMap(container: HTMLElement) {
         console.log(typeof(container));
