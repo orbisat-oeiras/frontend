@@ -52,7 +52,7 @@
     console.log(data)
   })
 
-  $: data = data;
+  $: data == data;
 
   let state: States = States.RAW;
 
