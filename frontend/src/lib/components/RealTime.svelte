@@ -22,6 +22,6 @@
 <style>
     .tab {
         height:100%;
-        width:25%;
+        width:15%;
     }
 </style>
