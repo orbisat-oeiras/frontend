@@ -47,6 +47,11 @@
       },
       // Other options related to the chart.
       options: {
+        elements: {
+          point: {
+            radius:0
+          }
+        },
         animation: {
           duration: 0
         },
