@@ -3,12 +3,13 @@
   import Button from "../lib/components/Button.svelte";
   import RealTime from "$lib/components/RealTime.svelte";
   import { States } from "../types";
+  import { onMount } from "svelte";
 
   // This code is related to getting the data from the server.
 
   // The data is organized as a dictionary of datapoints. 
   // When applicable, these are devided as an array of arrays containing the time (String) followed by the data (Number).
-  type Datapoint = [[String | undefined, Number | undefined]]
+  type Datapoint = [[string | undefined, Number | undefined]]
   type Data = {
     pressure: Datapoint
     altitude: Datapoint
@@ -22,34 +23,54 @@
   temperature: [[undefined, undefined]], 
   latitude: 0, 
   longitude: 0}
+  var backend: string = ""
+  var videoSource: string = ""
+  onMount(async() => {
+    var backend = String(prompt("Insert the server (default is https://localhost:7097/api/SSE) - "))
+    var videoSource = String(prompt("Insert the video source (default is http://localhost:8000/master.m3u8) - "))
 
-  var backend = String(prompt("Insert the server (default is https://localhost:7097/api/SSE) - "))
-  var videoSource = String(prompt("Insert the video source (default is http://localhost:8000/master.m3u8) - "))
-
-  const eventSource = new EventSource(backend == "" ? 'https://localhost:7097/api/SSE' : backend) // THE SERVER
+    const eventSource = new EventSource(backend == "" ? 'https://localhost:7097/api/SSE' : backend) // THE SERVER
 
 
-  // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
-  // The data received from the server is as follows:
-  // "'data'@{timestamp: 'timestamp', latitude 'latitude', longitude 'longitude'}"
-  eventSource.addEventListener("primary/altitude", (event) => {
-    let metadata = JSON.parse(event.data.split("@")[1])
-    data.altitude.push([metadata.timestamp, Number(event.data.split("@")[0])]);
-    data.latitude = Number(metadata.latitude)
-    data.longitude = Number(metadata.longitude)
-  })
-  eventSource.addEventListener("primary/temperature", (event) => {
-    let metadata = JSON.parse(event.data.split("@")[1])
-    data.temperature.push([JSON.parse(event.data.split("@")[1]).timestamp, Number(event.data.split("@")[0])]);
-    data.latitude = Number(metadata.latitude)
-    data.longitude = Number(metadata.longitude)
+    // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
+    // The data received from the server is as follows:
+    // "'data'@{timestamp: 'timestamp', latitude 'latitude', longitude 'longitude'}"
+    eventSource.addEventListener("primary/altitude", (event) => {
+      console.log("altitude")
+      let metadata = JSON.parse(String(event.data.split("@")[1]))
+
+      data.latitude = Number(metadata.latitude)
+      data.longitude = Number(metadata.longitude)
+
+      if (typeof(data.altitude[0][0]) != "string") {
+        data.altitude[0] = [String(metadata["Timestamp"]), Number(event.data.split("@")[0])]
+      } else {
+        data.altitude.push([String(metadata["Timestamp"]), Number(event.data.split("@")[0])]);
+      }
+    })
+    eventSource.addEventListener("primary/temperature", (event) => {
+      console.log("temp")
+      let metadata = JSON.parse(event.data.split("@")[1])
+      data.latitude = Number(metadata.latitude)
+      data.longitude = Number(metadata.longitude)
+
+      if (typeof(data.temperature[0][0]) != "string") {
+        data.temperature[0] = [String(metadata["Timestamp"]), Number(event.data.split("@")[0])]
+      } else {
+        data.temperature.push([String(metadata["Timestamp"]), Number(event.data.split("@")[0])]);
+      }
   })
   eventSource.addEventListener("primary/pressure", (event) => {
     let metadata = JSON.parse(event.data.split("@")[1])
-    data.pressure.push([JSON.parse(event.data.split("@")[1]).timestamp, Number(event.data.split("@")[0])]);
     data.latitude = Number(metadata.latitude)
     data.longitude = Number(metadata.longitude)
-    console.log(data)
+
+    if (typeof(data.pressure[0][0]) != "string") {
+      data.pressure[0] = [String(metadata["Timestamp"]), Number(event.data.split("@")[0])]
+    } else {
+      data.pressure.push([String(metadata["Timestamp"]), Number(event.data.split("@")[0])]);
+    }
+  })
   })
 
   $: if (data == data){
@@ -67,28 +88,34 @@
 <body>
   <div class="graphs">
     <section>
-      <Chart
-        labels={data.pressure.map((x) => String(x[0]))} 
-        data={data.pressure.map((x) => Number(x[1]))}
-        title={["Pressure"]}
-        unit="Pa"
-      />
+      {#key data.pressure}
+        <Chart
+          labels={data.pressure.map((x) => String(x[0]))} 
+          data={data.pressure.map((x) => Number(x[1]))}
+          title={["Pressure"]}
+          unit="Pa"
+        />
+      {/key}
     </section>
     <section>
-      <Chart
-        labels={data.temperature.map((x) => String(x[0]))}
-        data={data.temperature.map((x) => Number(x[1]))}
-        title={["Temperature"]}
-        unit="ºC"
-      />
+      {#key data.temperature}
+        <Chart
+          labels={data.temperature.map((x) => String(x[0]))}
+          data={data.temperature.map((x) => Number(x[1]))}
+          title={["Temperature"]}
+          unit="ºC"
+        />
+      {/key}
     </section>
     <section>
-      <Chart
-        labels={data.altitude.map((x) => String(x[0]))}
-        data={data.altitude.map((x) => Number(x[1]))}
-        title={["Height"]}
-        unit="m"
-      />
+      {#key data.altitude}
+        <Chart
+          labels={data.altitude.map((x) => String(x[0]))}
+          data={data.altitude.map((x) => Number(x[1]))}
+          title={["Height"]}
+          unit="m"
+        />
+      {/key}
     </section>
   </div>
 

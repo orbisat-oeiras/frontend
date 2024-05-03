@@ -47,6 +47,9 @@
       },
       // Other options related to the chart.
       options: {
+        animation: {
+          duration: 0
+        },
         responsive: true,
         // This option makes sure the chart is not trying to keep a defined aspect ratio,
         // because that messes up with it when it is resized.
