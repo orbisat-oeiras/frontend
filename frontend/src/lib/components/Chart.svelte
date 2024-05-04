@@ -78,7 +78,7 @@
             },
             // This add the 's' (for seconds) to the data in the x axis.
             ticks: {
-              callback: (value, index, ticks) => value + "s"
+              callback: (value, index, ticks) => value + ""
             }
           },
           y: {

@@ -94,7 +94,7 @@
           labels={data.pressure.map((x) => String(x[0]))} 
           data={data.pressure.map((x) => Number(x[1]))}
           title={["Time[s]"]}
-          unit="Pa"
+          unit=""
         />
       {/key}
     </section>
@@ -105,7 +105,7 @@
           labels={data.temperature.map((x) => String(x[0]))}
           data={data.temperature.map((x) => Number(x[1]))}
           title={["Time [s]"]}
-          unit="ºC"
+          unit=""
         />
       {/key}
     </section>
@@ -116,7 +116,7 @@
           labels={data.altitude.map((x) => String(x[0]))}
           data={data.altitude.map((x) => Number(x[1]))}
           title={["Time [s]"]}
-          unit="m"
+          unit=""
         />
       {/key}
     </section>
