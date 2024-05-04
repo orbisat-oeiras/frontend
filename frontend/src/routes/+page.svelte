@@ -88,31 +88,34 @@
 <body>
   <div class="graphs">
     <section>
+      Pressure [Pa]
       {#key data.pressure}
         <Chart
           labels={data.pressure.map((x) => String(x[0]))} 
           data={data.pressure.map((x) => Number(x[1]))}
-          title={["Pressure"]}
+          title={["Time[s]"]}
           unit="Pa"
         />
       {/key}
     </section>
     <section>
+      Temperature [ºC]
       {#key data.temperature}
         <Chart
           labels={data.temperature.map((x) => String(x[0]))}
           data={data.temperature.map((x) => Number(x[1]))}
-          title={["Temperature"]}
+          title={["Time [s]"]}
           unit="ºC"
         />
       {/key}
     </section>
     <section>
+      Height [m]
       {#key data.altitude}
         <Chart
           labels={data.altitude.map((x) => String(x[0]))}
           data={data.altitude.map((x) => Number(x[1]))}
-          title={["Height"]}
+          title={["Time [s]"]}
           unit="m"
         />
       {/key}
@@ -154,6 +157,7 @@
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
+    color:rgb(231, 175, 111);
   }
   .right-side {
     min-height:110vh;
@@ -161,6 +165,7 @@
     width: 64%;
     background-color: rgb(53, 53, 54);
     color: rgb(231, 175, 111);
+    size: 15;
   }
   .real-time {
     position: relative;

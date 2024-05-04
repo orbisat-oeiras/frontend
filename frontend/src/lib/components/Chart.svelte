@@ -70,8 +70,7 @@
               color: "rgb(215, 127, 43)",
               font: {
                 family: "Open Sans",
-                size: 20,
-                weight: "bold",
+                size: 15,
                 lineHeight: 1.2,
               },
               padding: { top: 0, bottom: 17.5 },
@@ -107,7 +106,7 @@
 -->
 <div
   class="chart-container"
-  style="position: relative; height:32vh; width:30vw"
+  style="position: relative; height:30vh; width:30vw"
 >
   <!-- Bind the canvas for the graph with the canvas element -->
   <canvas bind:this={canvas}></canvas>
