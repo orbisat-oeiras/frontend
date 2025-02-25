@@ -3,6 +3,7 @@
   import { States } from "../types";
   import { onMount } from "svelte";
   import logo from "$lib/images/OrbisatLogo.png";
+  import gif from "$lib/images/Speed-of-sound.gif";
 
   // This code is related to getting the data from the server.
 
@@ -185,6 +186,9 @@
       </div>
     </div>
   </div>
+  <div class="secondary-mission">
+    <img src={gif} alt="Speed of Sound" style="width: auto; height: 25rem"/>
+  </div>
 </body>
 
 <style>
@@ -220,7 +224,7 @@
     color: white;
     text-align: center;
     font-family: "Lato", "Open Sans", sans-serif;
-    font-size: 20px;
+    font-size: 1.2rem;
     border-radius: 10px;
   }
   .name {
@@ -267,5 +271,11 @@
     padding: 1rem;
     border-radius: 10px;
     color: white;
+  }
+  .secondary-mission {
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    margin-top: -2rem;
   }
 </style>
