@@ -4,6 +4,7 @@
   import { Filler } from "chart.js/auto";
 
   let canvas: HTMLCanvasElement;
+  let chart: Chart;
 
   // The title of the chart.
   export let title: string[] = [""];
@@ -20,9 +21,9 @@
   export let showLegends = false;
   // The unit for the data
   export let unit = "";
-    
+
   // This function runs when the chart is mounted to the DOM.
-  onMount(async () => {
+  onMount(() => {
     // This is used so we can get a nice canvas to draw the chart on.
     // If we cant get the context, an error is thrown.
     const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
@@ -30,10 +31,10 @@
       throw new Error("Failed to get 2D context");
     }
     var gradient = ctx.createLinearGradient(0, 0, 0, 510);
-    gradient.addColorStop(0, 'rgba(250,174,50,1)');   
-    gradient.addColorStop(1, 'rgba(250,174,50,0)');
+    gradient.addColorStop(0, "rgba(250,174,50,1)");
+    gradient.addColorStop(0, "rgba(250,174,50,0)");
     // Create the chart.
-    const chart: Chart = new Chart(ctx, {
+    chart = new Chart(ctx, {
       // The type of the chart (line, pie, bar, etc...).
       // In this case it is always going to be a line chart.
       type: "line",
@@ -42,7 +43,7 @@
         labels,
         datasets: [
           {
-            fill: 'origin',
+            fill: "origin",
             backgroundColor: gradient,
             borderColor,
             data,
@@ -54,11 +55,12 @@
       options: {
         elements: {
           point: {
-            radius:0
-          }
+            radius: 0,
+          },
         },
         animation: {
-          duration: 0
+          duration: 150,
+          easing: "easeInOutQuad",
         },
         responsive: true,
         // This option makes sure the chart is not trying to keep a defined aspect ratio,
@@ -74,8 +76,9 @@
               text: title,
               color: "rgb(215, 127, 43)",
               font: {
-                family: "Open Sans",
+                family: "Lato",
                 size: 15,
+                weight: 500,
                 lineHeight: 1.2,
               },
               padding: { top: 0, bottom: 17.5 },
@@ -83,17 +86,17 @@
             },
             // This add the 's' (for seconds) to the data in the x axis.
             ticks: {
-              callback: (value, index, ticks) => value + ""
-            }
+              callback: (value, index, ticks) => value + "",
+            },
           },
           y: {
             beginAtZero: false,
             // This add the unit to the data in the y axis.
             ticks: {
               callback: function (value, index, values) {
-            return typeof value === 'number' ? value.toFixed(1) : value; // Round to 1 decimal 
-          }
-            }
+                return typeof value === "number" ? value.toFixed(1) : value; // Round to 1 decimal
+              },
+            },
           },
         },
         plugins: {
@@ -101,10 +104,33 @@
             display: showLegends,
             position: "bottom",
           },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const value = context.parsed.y;
+                return `Value: ${value}`;
+              },
+              title: function (tooltipItems) {
+                const timestamp = parseFloat(tooltipItems[0].label);
+                const startTime = parseFloat(labels[0]);
+                const elapsedTime = ((timestamp - startTime) / 1000).toFixed(0);
+                return `Time: ${elapsedTime}s`;
+              },
+            },
+          },
         },
       },
     });
+
+    return () => {
+      chart.destroy();
+    };
   });
+  $: if (chart && data) {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = data;
+    chart.update("active"); 
+  }
 </script>
 
 <!-- 

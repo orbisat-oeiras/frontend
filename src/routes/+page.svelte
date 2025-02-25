@@ -1,7 +1,5 @@
 <script lang="ts">
   import Chart from "../lib/components/Chart.svelte";
-  import Button from "../lib/components/Button.svelte";
-  import RealTime from "$lib/components/RealTime.svelte";
   import { States } from "../types";
   import { onMount } from "svelte";
   import logo from "$lib/images/OrbisatLogo.png";
@@ -113,30 +111,28 @@
 
 <body>
   <nav
-    style="height: 5%;  width: 100%; background-color: #EFFEFE; display:flex; align-items: left;"
+    style="height: 3rem;  width: 100%; background-color: #EFFEFE; display:flex; align-items: left;"
   >
-    <img src={logo} alt="Orbisat Logo" style="height:50px; width:auto" />
+    <img src={logo} alt="Orbisat Logo" style="height:3rem; width:auto" />
     <p class="name" style="margin: 0 0 0 10px;">Orbisat Oeiras</p>
   </nav>
   <div class="test-mode">
     <p>
       This dashboard is running on <span style="color: red"
-        ><b>TEST MODE.</b></span
-      >
+        ><b>TEST MODE</b></span
+      >.
     </p>
   </div>
-  <div class="graphs">
+  <div class="graphs-div">
     <div>
       <section>
         Pressure [Pa]
-        {#key data.pressure}
           <Chart
             labels={data.pressure.map((x) => String(x[0]))}
             data={data.pressure.map((x) => Number(x[1]))}
             title={["Time[s]"]}
             unit=""
           />
-        {/key}
       </section>
       <div class="data-visualizer">
         <span class="label" style="color:darkviolet">Pressure</span>
@@ -151,14 +147,12 @@
     <div>
       <section>
         Temperature [ºC]
-        {#key data.temperature}
           <Chart
             labels={data.temperature.map((x) => String(x[0]))}
             data={data.temperature.map((x) => Number(x[1]))}
             title={["Time [s]"]}
             unit=""
           />
-        {/key}
       </section>
       <div class="data-visualizer">
         <span class="label" style="color:crimson">Temperature</span>
@@ -173,14 +167,12 @@
     <div>
       <section>
         Altitude [m]
-        {#key data.altitude}
           <Chart
             labels={data.altitude.map((x) => String(x[0]))}
             data={data.altitude.map((x) => Number(x[1]))}
             title={["Time [s]"]}
             unit=""
           />
-        {/key}
       </section>
       <div class="data-visualizer">
         <span class="label" style="color:aqua;">Altitude</span>
@@ -210,7 +202,7 @@
     background-color: rgb(13, 14, 17);
     min-height: 100vh;
   }
-  .graphs {
+  .graphs-div {
     display: flex;
     flex-direction: row;
     align-items: center;
