@@ -43,7 +43,7 @@
     // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
     // The data received from the server is as follows:
     // "'data'@{timestamp: 'timestamp', latitude 'latitude', longitude 'longitude'}"
-    eventSource.addEventListener("primary/altitude", (event) => {
+    eventSource.addEventListener("altitude", (event) => {
       console.log("altitude");
       let metadata = JSON.parse(String(event.data.split("@")[1]));
 
@@ -62,7 +62,7 @@
         ]);
       }
     });
-    eventSource.addEventListener("primary/temperature", (event) => {
+    eventSource.addEventListener("temperature", (event) => {
       console.log("temp");
       let metadata = JSON.parse(event.data.split("@")[1]);
       data.latitude = Number(metadata.latitude);
@@ -80,7 +80,7 @@
         ]);
       }
     });
-    eventSource.addEventListener("primary/pressure", (event) => {
+    eventSource.addEventListener("pressure", (event) => {
       let metadata = JSON.parse(event.data.split("@")[1]);
       data.latitude = Number(metadata.latitude);
       data.longitude = Number(metadata.longitude);
