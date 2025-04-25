@@ -11,16 +11,16 @@
   // The labels that appear on the x axis.
   // Since in this project it will mostly represent the time, it will likely be ["1", "2", "3", "4", "5"...].
   export let labels: Array<string>;
-  // Color of the small dots in each of the data points.
-  // Color of the rest of the line.
-  export let borderColor: Array<string> = ["rgb(215,127,43)"];
   // The data (such as the value of the pressure or the temperature).
-  export let data: number[];
+  export let datasets: {
+    label: string;
+    data: number[];
+    borderColor?: string;
+    backgroundColor?: string;
+  }[] = [];
   // If true, shows a label for the line in the chart.
   // I only added it because maybe we will have more than one line for the altitude chart.
   export let showLegends = false;
-  // The unit for the data
-  export let unit = "";
 
   // This function runs when the chart is mounted to the DOM.
   onMount(() => {
@@ -41,15 +41,14 @@
       // This is associated with the data that is shown on the x and y axis, as well as the styling of the line.
       data: {
         labels,
-        datasets: [
-          {
-            fill: "origin",
-            backgroundColor: gradient,
-            borderColor,
-            data,
-            tension: 0.3,
-          },
-        ],
+        datasets: datasets.map((ds) => ({
+          label: ds.label,
+          data: ds.data,
+          borderColor: ds.borderColor ?? "rgb(215,127,43)",
+          backgroundColor: ds.backgroundColor ?? "rgba(215,127,43,0.2)",
+          fill: false,
+          tension: 0.3,
+        })),
       },
       // Other options related to the chart.
       options: {
@@ -104,20 +103,6 @@
             display: showLegends,
             position: "bottom",
           },
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                const value = context.parsed.y;
-                return `Value: ${value}`;
-              },
-              title: function (tooltipItems) {
-                const timestamp = parseFloat(tooltipItems[0].label);
-                const startTime = parseFloat(labels[0]);
-                const elapsedTime = ((timestamp - startTime) / 1000).toFixed(0);
-                return `Time: ${elapsedTime}s`;
-              },
-            },
-          },
         },
       },
     });
@@ -126,10 +111,10 @@
       chart.destroy();
     };
   });
-  $: if (chart && data) {
+  $: if (chart && datasets) {
     chart.data.labels = labels;
-    chart.data.datasets[0].data = data;
-    chart.update("active"); 
+    chart.data.datasets[0].data = datasets[0].data;
+    chart.update("active");
   }
 </script>
 

@@ -14,6 +14,9 @@
     pressure: Datapoint;
     altitude: Datapoint;
     temperature: Datapoint;
+    accelerationx: Datapoint;
+    accelerationy: Datapoint;
+    accelerationz: Datapoint;
     latitude: number;
     longitude: number;
   };
@@ -21,6 +24,9 @@
     pressure: [[undefined, undefined]],
     altitude: [[undefined, undefined]],
     temperature: [[undefined, undefined]],
+    accelerationx: [[undefined, undefined]],
+    accelerationy: [[undefined, undefined]],
+    accelerationz: [[undefined, undefined]],
     latitude: 0,
     longitude: 0,
   };
@@ -28,16 +34,18 @@
   var videoSource: string = "";
   onMount(async () => {
     var backend = String(
-      prompt("Insert the server (default is https://localhost:7097/api/SSE) - ")
+      prompt(
+        "Insert the server (default is https://localhost:7097/api/SSE) - ",
+      ),
     );
     var videoSource = String(
       prompt(
-        "Insert the video source (default is http://localhost:8000/master.m3u8) - "
-      )
+        "Insert the video source (default is http://localhost:8000/master.m3u8) - ",
+      ),
     );
 
     const eventSource = new EventSource(
-      backend == "" ? "https://localhost:7097/api/SSE" : backend
+      backend == "" ? "https://localhost:7097/api/SSE" : backend,
     ); // THE SERVER
 
     // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
@@ -97,6 +105,57 @@
         ]);
       }
     });
+    eventSource.addEventListener("accelerationx", (event) => {
+      let metadata = JSON.parse(event.data.split("@")[1]);
+      data.latitude = Number(metadata.latitude);
+      data.longitude = Number(metadata.longitude);
+
+      if (typeof data.accelerationx[0][0] != "string") {
+        data.accelerationx[0] = [
+          String(metadata["Timestamp"]),
+          Number(event.data.split("@")[0]),
+        ];
+      } else {
+        data.accelerationx.push([
+          String(metadata["Timestamp"]),
+          Number(event.data.split("@")[0]),
+        ]);
+      }
+    });
+    eventSource.addEventListener("accelerationy", (event) => {
+      let metadata = JSON.parse(event.data.split("@")[1]);
+      data.latitude = Number(metadata.latitude);
+      data.longitude = Number(metadata.longitude);
+
+      if (typeof data.accelerationy[0][0] != "string") {
+        data.accelerationy[0] = [
+          String(metadata["Timestamp"]),
+          Number(event.data.split("@")[0]),
+        ];
+      } else {
+        data.accelerationy.push([
+          String(metadata["Timestamp"]),
+          Number(event.data.split("@")[0]),
+        ]);
+      }
+    });
+    eventSource.addEventListener("accelerationz", (event) => {
+      let metadata = JSON.parse(event.data.split("@")[1]);
+      data.latitude = Number(metadata.latitude);
+      data.longitude = Number(metadata.longitude);
+
+      if (typeof data.accelerationz[0][0] != "string") {
+        data.accelerationz[0] = [
+          String(metadata["Timestamp"]),
+          Number(event.data.split("@")[0]),
+        ];
+      } else {
+        data.accelerationz.push([
+          String(metadata["Timestamp"]),
+          Number(event.data.split("@")[0]),
+        ]);
+      }
+    });
   });
 
   $: if (data == data) {
@@ -128,12 +187,13 @@
     <div>
       <section>
         Pressure [Pa]
-          <Chart
-            labels={data.pressure.map((x) => String(x[0]))}
-            data={data.pressure.map((x) => Number(x[1]))}
-            title={["Time[s]"]}
-            unit=""
-          />
+        <Chart
+          labels={data.pressure.map((x) => String(x[0]))}
+          datasets={[
+            { label: "Altitude", data: data.pressure.map((x) => Number(x[1])) },
+          ]}
+          title={["Time[s]"]}
+        />
       </section>
       <div class="data-visualizer">
         <span class="label" style="color:darkviolet">Pressure</span>
@@ -148,12 +208,16 @@
     <div>
       <section>
         Temperature [ºC]
-          <Chart
-            labels={data.temperature.map((x) => String(x[0]))}
-            data={data.temperature.map((x) => Number(x[1]))}
-            title={["Time [s]"]}
-            unit=""
-          />
+        <Chart
+          labels={data.temperature.map((x) => String(x[0]))}
+          datasets={[
+            {
+              label: "Temperature",
+              data: data.temperature.map((x) => Number(x[1])),
+            },
+          ]}
+          title={["Time [s]"]}
+        />
       </section>
       <div class="data-visualizer">
         <span class="label" style="color:crimson">Temperature</span>
@@ -168,12 +232,13 @@
     <div>
       <section>
         Altitude [m]
-          <Chart
-            labels={data.altitude.map((x) => String(x[0]))}
-            data={data.altitude.map((x) => Number(x[1]))}
-            title={["Time [s]"]}
-            unit=""
-          />
+        <Chart
+          labels={data.altitude.map((x) => String(x[0]))}
+          datasets={[
+            { label: "Altitude", data: data.altitude.map((x) => Number(x[1])) },
+          ]}
+          title={["Time [s]"]}
+        />
       </section>
       <div class="data-visualizer">
         <span class="label" style="color:aqua;">Altitude</span>
@@ -186,8 +251,34 @@
       </div>
     </div>
   </div>
-  <div class="secondary-mission">
-    <img src={gif} alt="Speed of Sound" style="width: auto; height: 25rem"/>
+  <div class="graphs-div">
+    <div>
+      <section>
+        Acceleration [m/s²]
+        <Chart
+          labels={data.accelerationx.map((x) => String(x[0]))}
+          datasets={[
+            {
+              label: "X",
+              data: data.accelerationx.map((x) => Number(x[1])),
+              borderColor: "red",
+            },
+            {
+              label: "Y",
+              data: data.accelerationy.map((x) => Number(x[1])),
+              borderColor: "green",
+            },
+            {
+              label: "Z",
+              data: data.accelerationz.map((x) => Number(x[1])),
+              borderColor: "blue",
+            },
+          ]}
+          showLegends={true}
+          title={["Time [s]"]}
+        />
+      </section>
+    </div>
   </div>
 </body>
 
@@ -271,11 +362,5 @@
     padding: 1rem;
     border-radius: 10px;
     color: white;
-  }
-  .secondary-mission {
-    display: flex;
-    justify-content: left;
-    align-items: left;
-    margin-top: -2rem;
   }
 </style>
