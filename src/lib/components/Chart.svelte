@@ -2,7 +2,6 @@
   import Chart from "chart.js/auto";
   import { onMount } from "svelte";
   import { Filler } from "chart.js/auto";
-
   let canvas: HTMLCanvasElement;
   let chart: Chart;
 
@@ -10,7 +9,7 @@
   export let title: string[] = [""];
   // The labels that appear on the x axis.
   // Since in this project it will mostly represent the time, it will likely be ["1", "2", "3", "4", "5"...].
-  export let labels: Array<string>;
+  export let labels: Array<string | number>;
   // The data (such as the value of the pressure or the temperature).
   export let datasets: {
     label: string;
@@ -21,6 +20,8 @@
   // If true, shows a label for the line in the chart.
   // I only added it because maybe we will have more than one line for the altitude chart.
   export let showLegends = false;
+
+  export let maxDataPoints = 100; // We need this because performance gets very poor with many points.
 
   // This function runs when the chart is mounted to the DOM.
   onMount(() => {
@@ -47,7 +48,7 @@
           borderColor: ds.borderColor ?? "rgb(215,127,43)",
           backgroundColor: ds.backgroundColor ?? "rgba(215,127,43,0.2)",
           fill: false,
-          tension: 0.3,
+          tension: 0, // Remove bezier curves for better performance
         })),
       },
       // Other options related to the chart.
@@ -55,11 +56,11 @@
         spanGaps: false,
         elements: {
           point: {
-            radius: 0,
+            radius: 2,
           },
         },
         animation: {
-          duration: 150,
+          duration: 0,
           easing: "easeInOutQuad",
         },
         responsive: true,
@@ -83,10 +84,6 @@
               },
               padding: { top: 0, bottom: 17.5 },
               align: "start",
-            },
-            // This add the 's' (for seconds) to the data in the x axis.
-            ticks: {
-              callback: (value, index, ticks) => value + "",
             },
           },
           y: {
@@ -113,9 +110,28 @@
     };
   });
   $: if (chart && datasets) {
-    chart.data.labels = labels;
-    chart.data.datasets[0].data = datasets[0].data;
-    chart.update("active");
+    // Trim labels if they exceed maxDataPoints
+    const trimmedLabels = labels.slice(-maxDataPoints);
+    chart.data.labels = trimmedLabels;
+
+    datasets.forEach((newDs, i) => {
+      const trimmedData = newDs.data.slice(-maxDataPoints);
+
+      if (!chart.data.datasets[i]) {
+        chart.data.datasets[i] = {
+          label: newDs.label,
+          data: trimmedData,
+          borderColor: newDs.borderColor ?? "rgb(215,127,43)",
+          backgroundColor: newDs.backgroundColor ?? "rgba(215,127,43,0.2)",
+          fill: false,
+          tension: 0,
+        };
+      } else {
+        chart.data.datasets[i].data = trimmedData;
+      }
+    });
+
+    chart.update("none"); // Use 'none' mode for faster updates
   }
 </script>
 

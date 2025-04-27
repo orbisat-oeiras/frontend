@@ -8,9 +8,8 @@
 
   // This code is related to getting the data from the server.
 
-  // The data is organized as a dictionary of datapoints.
-  // When applicable, these are devided as an array of arrays containing the time (String) followed by the data (Number).
-  type Datapoint = [[string | undefined, Number | undefined]];
+  // The data is organized as an array of tuples containing the time (Number) followed by the data (Number).
+  type Datapoint = [number, number][]; // Array of [time, value] pairs
   type Data = {
     pressure: Datapoint;
     altitude: Datapoint;
@@ -23,16 +22,22 @@
     longitude: number;
   };
   let data: Data = {
-    pressure: [[undefined, undefined]],
-    altitude: [[undefined, undefined]],
-    temperature: [[undefined, undefined]],
-    humidity: [[undefined, undefined]],
-    accelerationx: [[undefined, undefined]],
-    accelerationy: [[undefined, undefined]],
-    accelerationz: [[undefined, undefined]],
+    pressure: [],
+    altitude: [],
+    temperature: [],
+    humidity: [],
+    accelerationx: [],
+    accelerationy: [],
+    accelerationz: [],
     latitude: 0,
     longitude: 0,
   };
+
+  function roundNumber(number: number, digits: number) {
+    var multiple = Math.pow(10, digits);
+    var rndedNum = Math.round(number * multiple) / multiple;
+    return rndedNum;
+  }
   var backend: string = "";
   var videoSource: string = "";
   let formattedTime = "";
@@ -61,13 +66,17 @@
 
       const rawTimestamp = Number(metadata["Timestamp"]);
       if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = ((rawTimestamp - firstTimestamp) / 1e9).toFixed(2);
+      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
 
-      if (typeof data.altitude[0][0] != "string") {
-        data.altitude[0] = [timeOffset, Number(event.data.split("@")[0])];
-      } else {
-        data.altitude.push([timeOffset, Number(event.data.split("@")[0])]);
-      }
+      gpsdataArray = [
+        ...gpsdataArray,
+        `Latitude: ${data.latitude}, Longitude: ${data.longitude}, Timestamp: ${timeOffset}`,
+      ];
+
+      data.altitude = [
+        ...data.altitude,
+        [timeOffset, Number(event.data.split("@")[0])],
+      ];
     });
     eventSource.addEventListener("temperature", (event) => {
       console.log("temp");
@@ -78,13 +87,12 @@
 
       const rawTimestamp = Number(metadata["Timestamp"]);
       if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = ((rawTimestamp - firstTimestamp) / 1e9).toFixed(2);
+      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
 
-      if (typeof data.temperature[0][0] != "string") {
-        data.temperature[0] = [timeOffset, Number(event.data.split("@")[0])];
-      } else {
-        data.temperature.push([timeOffset, Number(event.data.split("@")[0])]);
-      }
+      data.temperature = [
+        ...data.temperature,
+        [timeOffset, Number(event.data.split("@")[0])],
+      ];
     });
     eventSource.addEventListener("pressure", (event) => {
       let metadata = JSON.parse(event.data.split("@")[1]);
@@ -94,13 +102,12 @@
 
       const rawTimestamp = Number(metadata["Timestamp"]);
       if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = ((rawTimestamp - firstTimestamp) / 1e9).toFixed(2);
+      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
 
-      if (typeof data.pressure[0][0] != "string") {
-        data.pressure[0] = [timeOffset, Number(event.data.split("@")[0])];
-      } else {
-        data.pressure.push([timeOffset, Number(event.data.split("@")[0])]);
-      }
+      data.pressure = [
+        ...data.pressure,
+        [timeOffset, Number(event.data.split("@")[0])],
+      ];
     });
 
     eventSource.addEventListener("humidity", (event) => {
@@ -111,59 +118,49 @@
 
       const rawTimestamp = Number(metadata["Timestamp"]);
       if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = ((rawTimestamp - firstTimestamp) / 1e9).toFixed(2);
+      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
 
-      if (typeof data.humidity[0][0] != "string") {
-        data.humidity[0] = [timeOffset, Number(event.data.split("@")[0])];
-      } else {
-        data.humidity.push([timeOffset, Number(event.data.split("@")[0])]);
-      }
+      data.humidity = [
+        ...data.humidity,
+        [timeOffset, Number(event.data.split("@")[0])],
+      ];
     });
 
     eventSource.addEventListener("accelerationx", (event) => {
       let metadata = JSON.parse(event.data.split("@")[1]);
 
-      if (typeof data.accelerationx[0][0] != "string") {
-        data.accelerationx[0] = [
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ];
-      } else {
-        data.accelerationx.push([
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ]);
-      }
+      const rawTimestamp = Number(metadata["Timestamp"]);
+      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
+      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
+
+      data.accelerationx = [
+        ...data.accelerationx,
+        [timeOffset, Number(event.data.split("@")[0])],
+      ];
     });
     eventSource.addEventListener("accelerationy", (event) => {
       let metadata = JSON.parse(event.data.split("@")[1]);
 
-      if (typeof data.accelerationy[0][0] != "string") {
-        data.accelerationy[0] = [
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ];
-      } else {
-        data.accelerationy.push([
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ]);
-      }
+      const rawTimestamp = Number(metadata["Timestamp"]);
+      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
+      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
+
+      data.accelerationy = [
+        ...data.accelerationy,
+        [timeOffset, Number(event.data.split("@")[0])],
+      ];
     });
     eventSource.addEventListener("accelerationz", (event) => {
       let metadata = JSON.parse(event.data.split("@")[1]);
 
-      if (typeof data.accelerationz[0][0] != "string") {
-        data.accelerationz[0] = [
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ];
-      } else {
-        data.accelerationz.push([
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ]);
-      }
+      const rawTimestamp = Number(metadata["Timestamp"]);
+      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
+      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
+
+      data.accelerationz = [
+        ...data.accelerationz,
+        [timeOffset, Number(event.data.split("@")[0])],
+      ];
     });
   });
   $: if (data == data) {
@@ -190,7 +187,7 @@
       <section>
         Pressure [Pa]
         <Chart
-          labels={data.pressure.map((x) => String(x[0]))}
+          labels={data.pressure.map((x) => Number(x[0]))}
           datasets={[
             { label: "Altitude", data: data.pressure.map((x) => Number(x[1])) },
           ]}
@@ -211,7 +208,7 @@
       <section>
         Temperature [ºC]
         <Chart
-          labels={data.temperature.map((x) => String(x[0]))}
+          labels={data.temperature.map((x) => Number(x[0]))}
           datasets={[
             {
               label: "Temperature",
@@ -235,7 +232,7 @@
       <section>
         Altitude [m]
         <Chart
-          labels={data.altitude.map((x) => String(x[0]))}
+          labels={data.altitude.map((x) => Number(x[0]))}
           datasets={[
             { label: "Altitude", data: data.altitude.map((x) => Number(x[1])) },
           ]}
@@ -258,7 +255,7 @@
       <section>
         Acceleration [m/s²]
         <Chart
-          labels={data.accelerationx.map((x) => String(x[0]))}
+          labels={data.accelerationx.map((x) => Number(x[0]))}
           datasets={[
             {
               label: "X",
@@ -285,7 +282,7 @@
       <section>
         Humidity [%]
         <Chart
-          labels={data.humidity.map((x) => String(x[0]))}
+          labels={data.humidity.map((x) => Number(x[0]))}
           datasets={[
             { label: "Humidity", data: data.humidity.map((x) => Number(x[1])) },
           ]}
@@ -312,6 +309,7 @@
         String(data.altitude[data.altitude.length - 1]?.[0] ?? 0)
       ).toFixed(2)}
     ></RealTime>
+    <textarea class="gps-data" readonly>{gpsdataArray.join("\n")}</textarea>
   </div>
 </body>
 
@@ -410,5 +408,19 @@
     max-width: 1200px;
     top: 15vh;
     gap: 20px;
+  }
+  .gps-data {
+    width: 100%;
+    height: 50vh;
+    background-color: #1a1b1e;
+    color: white;
+    border-radius: 10px;
+    font-family: "Lato", sans-serif;
+    font-size: 0.9rem;
+    padding: 1rem;
+    border: none;
+    resize: none;
+    white-space: pre;
+    overflow-y: auto;
   }
 </style>
