@@ -52,6 +52,7 @@
       },
       // Other options related to the chart.
       options: {
+        spanGaps: false,
         elements: {
           point: {
             radius: 0,

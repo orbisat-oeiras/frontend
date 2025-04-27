@@ -2,8 +2,5 @@
 
 // All the possible states for the window on the right side.
 export enum States {
-  RAW,
   GPS,
-  NDVI,
-  LOG,
 }

@@ -3,6 +3,7 @@
   import { States } from "../types";
   import { onMount } from "svelte";
   import logo from "$lib/images/OrbisatLogo.png";
+  import RealTime from "../lib/components/RealTime.svelte";
   import gif from "$lib/images/Speed-of-sound.gif";
 
   // This code is related to getting the data from the server.
@@ -14,6 +15,7 @@
     pressure: Datapoint;
     altitude: Datapoint;
     temperature: Datapoint;
+    humidity: Datapoint;
     accelerationx: Datapoint;
     accelerationy: Datapoint;
     accelerationz: Datapoint;
@@ -24,6 +26,7 @@
     pressure: [[undefined, undefined]],
     altitude: [[undefined, undefined]],
     temperature: [[undefined, undefined]],
+    humidity: [[undefined, undefined]],
     accelerationx: [[undefined, undefined]],
     accelerationy: [[undefined, undefined]],
     accelerationz: [[undefined, undefined]],
@@ -32,20 +35,18 @@
   };
   var backend: string = "";
   var videoSource: string = "";
+  let formattedTime = "";
+  var gpsdataArray: string[];
+  let firstTimestamp: number | null = null;
+  gpsdataArray = [];
+
   onMount(async () => {
     var backend = String(
-      prompt(
-        "Insert the server (default is https://localhost:7097/api/SSE) - ",
-      ),
-    );
-    var videoSource = String(
-      prompt(
-        "Insert the video source (default is http://localhost:8000/master.m3u8) - ",
-      ),
+      prompt("Insert the server (default is https://localhost:7097/api/SSE) - ")
     );
 
     const eventSource = new EventSource(
-      backend == "" ? "https://localhost:7097/api/SSE" : backend,
+      backend == "" ? "https://localhost:7097/api/SSE" : backend
     ); // THE SERVER
 
     // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
@@ -55,60 +56,72 @@
       console.log("altitude");
       let metadata = JSON.parse(String(event.data.split("@")[1]));
 
-      data.latitude = Number(metadata.latitude);
-      data.longitude = Number(metadata.longitude);
+      data.latitude = Number(metadata.Coordinates.Latitude);
+      data.longitude = Number(metadata.Coordinates.Longitude);
+
+      const rawTimestamp = Number(metadata["Timestamp"]);
+      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
+      const timeOffset = ((rawTimestamp - firstTimestamp) / 1e9).toFixed(2);
 
       if (typeof data.altitude[0][0] != "string") {
-        data.altitude[0] = [
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ];
+        data.altitude[0] = [timeOffset, Number(event.data.split("@")[0])];
       } else {
-        data.altitude.push([
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ]);
+        data.altitude.push([timeOffset, Number(event.data.split("@")[0])]);
       }
     });
     eventSource.addEventListener("temperature", (event) => {
       console.log("temp");
       let metadata = JSON.parse(event.data.split("@")[1]);
-      data.latitude = Number(metadata.latitude);
-      data.longitude = Number(metadata.longitude);
+
+      data.latitude = Number(metadata.Coordinates.Latitude);
+      data.longitude = Number(metadata.Coordinates.Longitude);
+
+      const rawTimestamp = Number(metadata["Timestamp"]);
+      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
+      const timeOffset = ((rawTimestamp - firstTimestamp) / 1e9).toFixed(2);
 
       if (typeof data.temperature[0][0] != "string") {
-        data.temperature[0] = [
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ];
+        data.temperature[0] = [timeOffset, Number(event.data.split("@")[0])];
       } else {
-        data.temperature.push([
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ]);
+        data.temperature.push([timeOffset, Number(event.data.split("@")[0])]);
       }
     });
     eventSource.addEventListener("pressure", (event) => {
       let metadata = JSON.parse(event.data.split("@")[1]);
-      data.latitude = Number(metadata.latitude);
-      data.longitude = Number(metadata.longitude);
+
+      data.latitude = Number(metadata.Coordinates.Latitude);
+      data.longitude = Number(metadata.Coordinates.Longitude);
+
+      const rawTimestamp = Number(metadata["Timestamp"]);
+      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
+      const timeOffset = ((rawTimestamp - firstTimestamp) / 1e9).toFixed(2);
 
       if (typeof data.pressure[0][0] != "string") {
-        data.pressure[0] = [
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ];
+        data.pressure[0] = [timeOffset, Number(event.data.split("@")[0])];
       } else {
-        data.pressure.push([
-          String(metadata["Timestamp"]),
-          Number(event.data.split("@")[0]),
-        ]);
+        data.pressure.push([timeOffset, Number(event.data.split("@")[0])]);
       }
     });
+
+    eventSource.addEventListener("humidity", (event) => {
+      let metadata = JSON.parse(event.data.split("@")[1]);
+
+      data.latitude = Number(metadata.Coordinates.Latitude);
+      data.longitude = Number(metadata.Coordinates.Longitude);
+
+      const rawTimestamp = Number(metadata["Timestamp"]);
+      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
+      const timeOffset = ((rawTimestamp - firstTimestamp) / 1e9).toFixed(2);
+
+      if (typeof data.humidity[0][0] != "string") {
+        data.humidity[0] = [timeOffset, Number(event.data.split("@")[0])];
+      } else {
+        data.humidity.push([timeOffset, Number(event.data.split("@")[0])]);
+      }
+    });
+
     eventSource.addEventListener("accelerationx", (event) => {
       let metadata = JSON.parse(event.data.split("@")[1]);
-      data.latitude = Number(metadata.latitude);
-      data.longitude = Number(metadata.longitude);
 
       if (typeof data.accelerationx[0][0] != "string") {
         data.accelerationx[0] = [
@@ -124,8 +137,6 @@
     });
     eventSource.addEventListener("accelerationy", (event) => {
       let metadata = JSON.parse(event.data.split("@")[1]);
-      data.latitude = Number(metadata.latitude);
-      data.longitude = Number(metadata.longitude);
 
       if (typeof data.accelerationy[0][0] != "string") {
         data.accelerationy[0] = [
@@ -141,8 +152,6 @@
     });
     eventSource.addEventListener("accelerationz", (event) => {
       let metadata = JSON.parse(event.data.split("@")[1]);
-      data.latitude = Number(metadata.latitude);
-      data.longitude = Number(metadata.longitude);
 
       if (typeof data.accelerationz[0][0] != "string") {
         data.accelerationz[0] = [
@@ -157,15 +166,8 @@
       }
     });
   });
-
   $: if (data == data) {
     console.log(data);
-  }
-
-  let state: States = States.RAW;
-
-  function changeState(st: States) {
-    state = st;
   }
 </script>
 
@@ -279,6 +281,35 @@
         />
       </section>
     </div>
+    <div>
+      <section>
+        Humidity [%]
+        <Chart
+          labels={data.humidity.map((x) => String(x[0]))}
+          datasets={[
+            { label: "Humidity", data: data.humidity.map((x) => Number(x[1])) },
+          ]}
+          title={["Time [s]"]}
+        />
+      </section>
+      <div class="data-visualizer">
+        <span class="label" style="color:aqua;">Humidity</span>
+        <div class="data-container">
+          <span class="value"
+            >{data.humidity[data.humidity.length - 1]?.[1] ?? 0}</span
+          >
+          <span class="unit">%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="real-time">
+    <RealTime
+      state={States.GPS}
+      latitude={data.latitude}
+      longitude={data.longitude}
+      timestamp={formattedTime}
+    ></RealTime>
   </div>
 </body>
 
@@ -362,5 +393,20 @@
     padding: 1rem;
     border-radius: 10px;
     color: white;
+  }
+  .real-time {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    max-width: 1200px;
+    top: 15vh;
+    gap: 20px;
   }
 </style>
