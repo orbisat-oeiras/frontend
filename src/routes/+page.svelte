@@ -308,7 +308,9 @@
       state={States.GPS}
       latitude={data.latitude}
       longitude={data.longitude}
-      timestamp={formattedTime}
+      timestamp={parseFloat(
+        String(data.altitude[data.altitude.length - 1]?.[0] ?? 0)
+      ).toFixed(2)}
     ></RealTime>
   </div>
 </body>
