@@ -11,13 +11,11 @@
 
   function createMap(container: HTMLElement) {
     console.log(typeof container);
-    let map = L.map(container).setView([location[0], location[1]], 13);
+    let map = L.map(container).setView([location[0], location[1]], 15);
     // We are getting the maps and tiles from https://www.openstreetmap.org/.
     // It is a free service, but they require giving appropriate crediting (attribution).
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution:
-        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    L.tileLayer("maps/Ilha de Santa Maria/{z}/{x}/{y}.png", {
+      maxZoom: 16,
     }).addTo(map);
 
     return map;
