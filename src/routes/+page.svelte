@@ -43,6 +43,9 @@
   let formattedTime = "";
   var gpsdataArray: string[];
   let firstTimestamp: number | null = null;
+  let currentTimestamp: number;
+  let packetTimeDelayAltitude: number | null = null;
+  let lastTimestamp: number | null = null;
   gpsdataArray = [];
 
   onMount(async () => {
@@ -69,6 +72,19 @@
       const rawTimestamp = Number(metadata["Timestamp"]);
       if (firstTimestamp === null) firstTimestamp = rawTimestamp;
       const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
+
+      currentTimestamp = timeOffset;
+
+      if (lastTimestamp !== null) {
+        packetTimeDelayAltitude = timeOffset - lastTimestamp;
+      }
+      lastTimestamp = timeOffset;
+      // while (
+      //   packetTimeDelayAltitude !== null &&
+      //   packetTimeDelayAltitude > 0.6
+      // ) {
+      //   data.altitude = [...data.altitude, [lastTimestamp - 0.5, NaN]];
+      // }
 
       gpsdataArray = [
         ...gpsdataArray,
@@ -168,6 +184,13 @@
   $: if (data == data) {
     console.log(data);
   }
+  $: currentTimestamp = data.altitude[data.altitude.length - 1]?.[0] ?? 0;
+  $: {
+    const element = document.getElementById("current-time");
+    if (element) {
+      element.innerHTML = `Current Time: ${currentTimestamp.toFixed(2)} s`;
+    }
+  }
 </script>
 
 <body>
@@ -176,6 +199,7 @@
   >
     <img src={logo} alt="Orbisat Logo" style="height:3rem; width:auto" />
     <p class="name" style="margin: 0 0 0 10px;">Orbisat Oeiras</p>
+    <p id="current-time"></p>
   </nav>
   <div class="graphs-div">
     <div>
@@ -375,11 +399,22 @@
     color: white;
     border-radius: 10px;
     font-family: "Lato", sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     padding: 1rem;
     border: none;
     resize: none;
     white-space: pre;
     overflow-y: auto;
+  }
+  #current-time {
+    font-size: 1.2rem;
+    color: black;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+    padding-bottom: 0;
+    position: absolute;
+    top: 0px;
+    right: 20px;
   }
 </style>
