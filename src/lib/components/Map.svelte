@@ -11,7 +11,7 @@
 
   function createMap(container: HTMLElement) {
     console.log(typeof container);
-    let map = L.map(container).setView([location[0], location[1]], 15);
+    let map = L.map(container).setView([location[0], location[1]], 12);
     // We are getting the maps and tiles from https://www.openstreetmap.org/.
     // It is a free service, but they require giving appropriate crediting (attribution).
     L.tileLayer("maps/Ilha de Santa Maria/{z}/{x}/{y}.png", {
@@ -31,6 +31,7 @@
   }
 
   let map: L.Map;
+  let currentMarker: L.Marker | null = null;
 
   $: {
     if (
@@ -41,8 +42,11 @@
       !isNaN(latitude) &&
       !isNaN(longitude)
     ) {
-      const marker = L.marker([latitude, longitude]).addTo(map);
-      marker.bindPopup(`<b>Timestamp:</b> ${timestamp}`);
+      if (currentMarker) {
+        map.removeLayer(currentMarker);
+      }
+      currentMarker = L.marker([latitude, longitude]).addTo(map);
+      currentMarker.bindPopup(`Timestamp: ${timestamp}`).openPopup();
     }
   }
 </script>
