@@ -177,13 +177,6 @@
     <img src={logo} alt="Orbisat Logo" style="height:3rem; width:auto" />
     <p class="name" style="margin: 0 0 0 10px;">Orbisat Oeiras</p>
   </nav>
-  <div class="test-mode">
-    <p>
-      This dashboard is running on <span style="color: red"
-        ><b>TEST MODE</b></span
-      >.
-    </p>
-  </div>
   <div class="graphs-div">
     <div>
       <section>
@@ -314,16 +307,6 @@
     margin: 0 auto;
     padding: 1rem;
     gap: 2rem;
-  }
-  .test-mode {
-    display: flex;
-    justify-content: center;
-    background-color: rgb(25, 24, 30);
-    color: white;
-    text-align: center;
-    font-family: "Lato", "Open Sans", sans-serif;
-    font-size: 1.2rem;
-    border-radius: 10px;
   }
   .name {
     font-size: 20px;
