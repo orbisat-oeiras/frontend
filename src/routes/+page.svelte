@@ -47,11 +47,13 @@
 
   onMount(async () => {
     var backend = String(
-      prompt("Insert the server (default is https://localhost:7097/api/SSE) - ")
+      prompt(
+        "Insert the server (default is https://localhost:7097/api/SSE) - ",
+      ),
     );
 
     const eventSource = new EventSource(
-      backend == "" ? "https://localhost:7097/api/SSE" : backend
+      backend == "" ? "https://localhost:7097/api/SSE" : backend,
     ); // THE SERVER
 
     // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
@@ -204,30 +206,7 @@
         </div>
       </div>
     </div>
-    <div>
-      <section>
-        Temperature [ºC]
-        <Chart
-          labels={data.temperature.map((x) => Number(x[0]))}
-          datasets={[
-            {
-              label: "Temperature",
-              data: data.temperature.map((x) => Number(x[1])),
-            },
-          ]}
-          title={["Time [s]"]}
-        />
-      </section>
-      <div class="data-visualizer">
-        <span class="label" style="color:crimson">Temperature</span>
-        <div class="data-container">
-          <span class="value"
-            >{data.temperature[data.temperature.length - 1]?.[1] ?? 0}</span
-          >
-          <span class="unit">ºC</span>
-        </div>
-      </div>
-    </div>
+
     <div>
       <section>
         Altitude [m]
@@ -253,30 +232,27 @@
   <div class="graphs-div">
     <div>
       <section>
-        Acceleration [m/s²]
+        Temperature [ºC]
         <Chart
-          labels={data.accelerationx.map((x) => Number(x[0]))}
+          labels={data.temperature.map((x) => Number(x[0]))}
           datasets={[
             {
-              label: "X",
-              data: data.accelerationx.map((x) => Number(x[1])),
-              borderColor: "red",
-            },
-            {
-              label: "Y",
-              data: data.accelerationy.map((x) => Number(x[1])),
-              borderColor: "green",
-            },
-            {
-              label: "Z",
-              data: data.accelerationz.map((x) => Number(x[1])),
-              borderColor: "blue",
+              label: "Temperature",
+              data: data.temperature.map((x) => Number(x[1])),
             },
           ]}
-          showLegends={true}
           title={["Time [s]"]}
         />
       </section>
+      <div class="data-visualizer">
+        <span class="label" style="color:crimson">Temperature</span>
+        <div class="data-container">
+          <span class="value"
+            >{data.temperature[data.temperature.length - 1]?.[1] ?? 0}</span
+          >
+          <span class="unit">ºC</span>
+        </div>
+      </div>
     </div>
     <div>
       <section>
@@ -306,7 +282,7 @@
       latitude={data.latitude}
       longitude={data.longitude}
       timestamp={parseFloat(
-        String(data.altitude[data.altitude.length - 1]?.[0] ?? 0)
+        String(data.altitude[data.altitude.length - 1]?.[0] ?? 0),
       ).toFixed(2)}
     ></RealTime>
     <textarea class="gps-data" readonly>{gpsdataArray.join("\n")}</textarea>
