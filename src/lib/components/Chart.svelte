@@ -53,7 +53,7 @@
       },
       // Other options related to the chart.
       options: {
-        spanGaps: 1,
+        spanGaps: false,
         elements: {
           point: {
             radius: 2,
@@ -82,7 +82,6 @@
                 weight: 500,
                 lineHeight: 1.2,
               },
-              padding: { top: 0, bottom: 17.5 },
               align: "start",
             },
           },
@@ -141,7 +140,7 @@
 -->
 <div
   class="chart-container"
-  style="position: relative; height:30vh; width:30vw"
+  style="position: relative; height: 9.6rem; width: 24rem"
 >
   <!-- Bind the canvas for the graph with the canvas element -->
   <canvas bind:this={canvas}></canvas>

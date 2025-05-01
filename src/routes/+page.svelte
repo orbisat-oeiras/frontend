@@ -44,7 +44,11 @@
   var gpsdataArray: string[];
   let firstTimestamp: number | null = null;
   let currentTimestamp: number;
-  let packetTimeDelayAltitude: number | null = null;
+  let packetTimeDelayAltitude,
+    packetTimeDelayPressure,
+    packetTimeDelayTemperature,
+    packetTimeDelayHumidity: number | null = null;
+
   let lastTimestamp: number | null = null;
   gpsdataArray = [];
 
@@ -74,9 +78,20 @@
       const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
 
       currentTimestamp = timeOffset;
+      packetTimeDelayAltitude = 0;
 
       if (lastTimestamp !== null) {
         packetTimeDelayAltitude = timeOffset - lastTimestamp;
+        console.log(
+          `Packet Time Delay Altitude: ${packetTimeDelayAltitude} seconds`,
+        );
+        if (packetTimeDelayAltitude !== null && packetTimeDelayAltitude > 0.6) {
+          var amountofPacketsToFill = Math.floor(packetTimeDelayAltitude / 0.5);
+          for (let i = 0; i < amountofPacketsToFill; i++) {
+            data.altitude = [...data.altitude, [lastTimestamp + 0.5, NaN]];
+            amountofPacketsToFill += 0.5;
+          }
+        }
       }
       lastTimestamp = timeOffset;
       // while (
@@ -388,18 +403,16 @@
     margin-right: auto;
     margin-bottom: 0;
     padding-bottom: 0;
-    max-width: 1200px;
-    top: 15vh;
     gap: 20px;
   }
   .gps-data {
-    width: 100%;
+    width: 110rem;
     height: 50vh;
     background-color: #1a1b1e;
     color: white;
     border-radius: 10px;
     font-family: "Lato", sans-serif;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     padding: 1rem;
     border: none;
     resize: none;
