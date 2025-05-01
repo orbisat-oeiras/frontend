@@ -122,6 +122,31 @@
       if (firstTimestamp === null) firstTimestamp = rawTimestamp;
       const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
 
+      packetTimeDelayTemperature = 0;
+
+      if (lastTimestamp !== null) {
+        packetTimeDelayTemperature = timeOffset - lastTimestamp;
+        console.log(
+          `Packet Time Delay Altitude: ${packetTimeDelayTemperature} seconds`,
+        );
+        if (
+          packetTimeDelayTemperature !== null &&
+          packetTimeDelayTemperature > 0.6
+        ) {
+          var amountofPacketsToFill = Math.floor(
+            packetTimeDelayTemperature / 0.5,
+          );
+          for (let i = 0; i < amountofPacketsToFill; i++) {
+            data.temperature = [
+              ...data.temperature,
+              [lastTimestamp + 0.5, NaN],
+            ];
+            amountofPacketsToFill += 0.5;
+          }
+        }
+      }
+      lastTimestamp = timeOffset;
+
       data.temperature = [
         ...data.temperature,
         [timeOffset, Number(event.data.split("@")[0])],
@@ -152,6 +177,23 @@
       const rawTimestamp = Number(metadata["Timestamp"]);
       if (firstTimestamp === null) firstTimestamp = rawTimestamp;
       const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
+
+      packetTimeDelayHumidity = 0;
+
+      if (lastTimestamp !== null) {
+        packetTimeDelayHumidity = timeOffset - lastTimestamp;
+        console.log(
+          `Packet Time Delay Altitude: ${packetTimeDelayHumidity} seconds`,
+        );
+        if (packetTimeDelayHumidity !== null && packetTimeDelayHumidity > 0.6) {
+          var amountofPacketsToFill = Math.floor(packetTimeDelayHumidity / 0.5);
+          for (let i = 0; i < amountofPacketsToFill; i++) {
+            data.humidity = [...data.humidity, [lastTimestamp + 0.5, NaN]];
+            amountofPacketsToFill += 0.5;
+          }
+        }
+      }
+      lastTimestamp = timeOffset;
 
       data.humidity = [
         ...data.humidity,
