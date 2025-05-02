@@ -21,7 +21,7 @@
   // I only added it because maybe we will have more than one line for the altitude chart.
   export let showLegends = false;
 
-  export let maxDataPoints = 100; // We need this because performance gets very poor with many points.
+  export let maxDataPoints = 170; // We need this because performance gets very poor with many points.
 
   // This function runs when the chart is mounted to the DOM.
   onMount(() => {
