@@ -44,12 +44,16 @@
   var gpsdataArray: string[];
   let firstTimestamp: number | null = null;
   let currentTimestamp: number;
-  let packetTimeDelayAltitude,
-    packetTimeDelayPressure,
-    packetTimeDelayTemperature,
-    packetTimeDelayHumidity: number | null = null;
+  let packetTimeDelayAltitude: number | null = null;
+  let packetTimeDelayPressure: number | null = null;
+  let packetTimeDelayTemperature: number | null = null;
+  let packetTimeDelayHumidity: number | null = null;
 
-  let lastTimestamp: number | null = null;
+  let lastAltitudeTimestamp: number | null = null;
+  let lastTemperatureTimestamp: number | null = null;
+  let lastHumidityTimestamp: number | null = null;
+  let lastPressureTimestamp: number | null = null;
+
   gpsdataArray = [];
 
   onMount(async () => {
@@ -80,20 +84,23 @@
       currentTimestamp = timeOffset;
       packetTimeDelayAltitude = 0;
 
-      if (lastTimestamp !== null) {
-        packetTimeDelayAltitude = timeOffset - lastTimestamp;
+      if (lastAltitudeTimestamp !== null) {
+        packetTimeDelayAltitude = timeOffset - lastAltitudeTimestamp;
         console.log(
           `Packet Time Delay Altitude: ${packetTimeDelayAltitude} seconds`,
         );
         if (packetTimeDelayAltitude !== null && packetTimeDelayAltitude > 0.6) {
           var amountofPacketsToFill = Math.floor(packetTimeDelayAltitude / 0.5);
           for (let i = 0; i < amountofPacketsToFill; i++) {
-            data.altitude = [...data.altitude, [lastTimestamp + 0.5, NaN]];
+            data.altitude = [
+              ...data.altitude,
+              [lastAltitudeTimestamp + 0.5, NaN],
+            ];
             amountofPacketsToFill += 0.5;
           }
         }
       }
-      lastTimestamp = timeOffset;
+      lastAltitudeTimestamp = timeOffset;
       // while (
       //   packetTimeDelayAltitude !== null &&
       //   packetTimeDelayAltitude > 0.6
@@ -124,8 +131,8 @@
 
       packetTimeDelayTemperature = 0;
 
-      if (lastTimestamp !== null) {
-        packetTimeDelayTemperature = timeOffset - lastTimestamp;
+      if (lastTemperatureTimestamp !== null) {
+        packetTimeDelayTemperature = timeOffset - lastTemperatureTimestamp;
         console.log(
           `Packet Time Delay Altitude: ${packetTimeDelayTemperature} seconds`,
         );
@@ -139,13 +146,13 @@
           for (let i = 0; i < amountofPacketsToFill; i++) {
             data.temperature = [
               ...data.temperature,
-              [lastTimestamp + 0.5, NaN],
+              [lastTemperatureTimestamp + 0.5, NaN],
             ];
             amountofPacketsToFill += 0.5;
           }
         }
       }
-      lastTimestamp = timeOffset;
+      lastTemperatureTimestamp = timeOffset;
 
       data.temperature = [
         ...data.temperature,
@@ -161,6 +168,26 @@
       const rawTimestamp = Number(metadata["Timestamp"]);
       if (firstTimestamp === null) firstTimestamp = rawTimestamp;
       const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
+
+      packetTimeDelayPressure = 0;
+
+      if (lastPressureTimestamp !== null) {
+        packetTimeDelayPressure = timeOffset - lastPressureTimestamp;
+        console.log(
+          `Packet Time Delay Altitude: ${packetTimeDelayPressure} seconds`,
+        );
+        if (packetTimeDelayPressure !== null && packetTimeDelayPressure > 0.6) {
+          var amountofPacketsToFill = Math.floor(packetTimeDelayPressure / 0.5);
+          for (let i = 0; i < amountofPacketsToFill; i++) {
+            data.pressure = [
+              ...data.pressure,
+              [lastPressureTimestamp + 0.5, NaN],
+            ];
+            amountofPacketsToFill += 0.5;
+          }
+        }
+      }
+      lastPressureTimestamp = timeOffset;
 
       data.pressure = [
         ...data.pressure,
@@ -180,20 +207,23 @@
 
       packetTimeDelayHumidity = 0;
 
-      if (lastTimestamp !== null) {
-        packetTimeDelayHumidity = timeOffset - lastTimestamp;
+      if (lastHumidityTimestamp !== null) {
+        packetTimeDelayHumidity = timeOffset - lastHumidityTimestamp;
         console.log(
           `Packet Time Delay Altitude: ${packetTimeDelayHumidity} seconds`,
         );
         if (packetTimeDelayHumidity !== null && packetTimeDelayHumidity > 0.6) {
           var amountofPacketsToFill = Math.floor(packetTimeDelayHumidity / 0.5);
           for (let i = 0; i < amountofPacketsToFill; i++) {
-            data.humidity = [...data.humidity, [lastTimestamp + 0.5, NaN]];
+            data.humidity = [
+              ...data.humidity,
+              [lastHumidityTimestamp + 0.5, NaN],
+            ];
             amountofPacketsToFill += 0.5;
           }
         }
       }
-      lastTimestamp = timeOffset;
+      lastHumidityTimestamp = timeOffset;
 
       data.humidity = [
         ...data.humidity,
