@@ -58,13 +58,11 @@
 
   onMount(async () => {
     var backend = String(
-      prompt(
-        "Insert the server (default is https://localhost:7097/api/SSE) - ",
-      ),
+      prompt("Insert the server (default is https://localhost:7097/api/SSE) - ")
     );
 
     const eventSource = new EventSource(
-      backend == "" ? "https://localhost:7097/api/SSE" : backend,
+      backend == "" ? "https://localhost:7097/api/SSE" : backend
     ); // THE SERVER
 
     // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
@@ -87,7 +85,7 @@
       if (lastAltitudeTimestamp !== null) {
         packetTimeDelayAltitude = timeOffset - lastAltitudeTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayAltitude} seconds`,
+          `Packet Time Delay Altitude: ${packetTimeDelayAltitude} seconds`
         );
         if (packetTimeDelayAltitude !== null && packetTimeDelayAltitude > 0.6) {
           var amountofPacketsToFill = Math.floor(packetTimeDelayAltitude / 0.5);
@@ -134,14 +132,14 @@
       if (lastTemperatureTimestamp !== null) {
         packetTimeDelayTemperature = timeOffset - lastTemperatureTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayTemperature} seconds`,
+          `Packet Time Delay Altitude: ${packetTimeDelayTemperature} seconds`
         );
         if (
           packetTimeDelayTemperature !== null &&
           packetTimeDelayTemperature > 0.6
         ) {
           var amountofPacketsToFill = Math.floor(
-            packetTimeDelayTemperature / 0.5,
+            packetTimeDelayTemperature / 0.5
           );
           for (let i = 0; i < amountofPacketsToFill; i++) {
             data.temperature = [
@@ -174,7 +172,7 @@
       if (lastPressureTimestamp !== null) {
         packetTimeDelayPressure = timeOffset - lastPressureTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayPressure} seconds`,
+          `Packet Time Delay Altitude: ${packetTimeDelayPressure} seconds`
         );
         if (packetTimeDelayPressure !== null && packetTimeDelayPressure > 0.6) {
           var amountofPacketsToFill = Math.floor(packetTimeDelayPressure / 0.5);
@@ -210,7 +208,7 @@
       if (lastHumidityTimestamp !== null) {
         packetTimeDelayHumidity = timeOffset - lastHumidityTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayHumidity} seconds`,
+          `Packet Time Delay Altitude: ${packetTimeDelayHumidity} seconds`
         );
         if (packetTimeDelayHumidity !== null && packetTimeDelayHumidity > 0.6) {
           var amountofPacketsToFill = Math.floor(packetTimeDelayHumidity / 0.5);
@@ -286,112 +284,136 @@
   >
     <img src={logo} alt="Orbisat Logo" style="height:3rem; width:auto" />
     <p class="name" style="margin: 0 0 0 10px;">Orbisat Oeiras</p>
-    <p id="current-time"></p>
   </nav>
-  <div class="graphs-div">
-    <div>
-      <section>
-        Pressure [Pa]
-        <Chart
-          labels={data.pressure.map((x) => Number(x[0]))}
-          datasets={[
-            { label: "Altitude", data: data.pressure.map((x) => Number(x[1])) },
-          ]}
-          title={["Time[s]"]}
-        />
-      </section>
-      <div class="data-visualizer">
-        <span class="label" style="color:darkviolet">Pressure</span>
-        <div class="data-container">
-          <span class="value"
-            >{data.pressure[data.pressure.length - 1]?.[1] ?? 0}</span
-          >
-          <span class="unit">Pa</span>
+  <div class="dashboard">
+    <div class="graphs-container">
+      <div class="graphs-div">
+        <div>
+          <section>
+            Pressure [Pa]
+            <Chart
+              labels={data.pressure.map((x) => Number(x[0]))}
+              datasets={[
+                {
+                  label: "Altitude",
+                  data: data.pressure.map((x) => Number(x[1])),
+                },
+              ]}
+              title={["Time[s]"]}
+            />
+          </section>
+          <div class="data-visualizer">
+            <span class="label" style="color:darkviolet">Pressure</span>
+            <div class="data-container">
+              <span class="value"
+                >{data.pressure[data.pressure.length - 1]?.[1] ?? 0}</span
+              >
+              <span class="unit">Pa</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div>
-      <section>
-        Altitude [m]
-        <Chart
-          labels={data.altitude.map((x) => Number(x[0]))}
-          datasets={[
-            { label: "Altitude", data: data.altitude.map((x) => Number(x[1])) },
-          ]}
-          title={["Time [s]"]}
-        />
-      </section>
-      <div class="data-visualizer">
-        <span class="label" style="color:aqua;">Altitude</span>
-        <div class="data-container">
-          <span class="value"
-            >{data.altitude[data.altitude.length - 1]?.[1] ?? 0}</span
-          >
-          <span class="unit">m</span>
+        <div>
+          <section>
+            Altitude [m]
+            <Chart
+              labels={data.altitude.map((x) => Number(x[0]))}
+              datasets={[
+                {
+                  label: "Altitude",
+                  data: data.altitude.map((x) => Number(x[1])),
+                },
+              ]}
+              title={["Time [s]"]}
+            />
+          </section>
+          <div class="data-visualizer">
+            <span class="label" style="color:aqua;">Altitude</span>
+            <div class="data-container">
+              <span class="value"
+                >{data.altitude[data.altitude.length - 1]?.[1] ?? 0}</span
+              >
+              <span class="unit">m</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="graphs-div">
+        <div>
+          <section>
+            Temperature [ºC]
+            <Chart
+              labels={data.temperature.map((x) => Number(x[0]))}
+              datasets={[
+                {
+                  label: "Temperature",
+                  data: data.temperature.map((x) => Number(x[1])),
+                },
+              ]}
+              title={["Time [s]"]}
+            />
+          </section>
+          <div class="data-visualizer">
+            <span class="label" style="color:crimson">Temperature</span>
+            <div class="data-container">
+              <span class="value"
+                >{data.temperature[data.temperature.length - 1]?.[1] ?? 0}</span
+              >
+              <span class="unit">ºC</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <section>
+            Humidity [%]
+            <Chart
+              labels={data.humidity.map((x) => Number(x[0]))}
+              datasets={[
+                {
+                  label: "Humidity",
+                  data: data.humidity.map((x) => Number(x[1])),
+                },
+              ]}
+              title={["Time [s]"]}
+            />
+          </section>
+          <div class="data-visualizer">
+            <span class="label" style="color:aqua;">Humidity</span>
+            <div class="data-container">
+              <span class="value"
+                >{data.humidity[data.humidity.length - 1]?.[1] ?? 0}</span
+              >
+              <span class="unit">%</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="graphs-div">
-    <div>
-      <section>
-        Temperature [ºC]
-        <Chart
-          labels={data.temperature.map((x) => Number(x[0]))}
-          datasets={[
-            {
-              label: "Temperature",
-              data: data.temperature.map((x) => Number(x[1])),
-            },
-          ]}
-          title={["Time [s]"]}
-        />
-      </section>
-      <div class="data-visualizer">
-        <span class="label" style="color:crimson">Temperature</span>
-        <div class="data-container">
-          <span class="value"
-            >{data.temperature[data.temperature.length - 1]?.[1] ?? 0}</span
-          >
-          <span class="unit">ºC</span>
+    <div class="real-time">
+      <RealTime
+        state={States.GPS}
+        latitude={data.latitude}
+        longitude={data.longitude}
+        timestamp={parseFloat(
+          String(data.altitude[data.altitude.length - 1]?.[0] ?? 0)
+        ).toFixed(2)}
+      ></RealTime>
+      <div class="real-time-bottom">
+        <textarea class="gps-data" readonly>{gpsdataArray.join("\n")}</textarea>
+
+        <div class="live-status">
+          <span class="label" style="color:crimson">Current Timestamp</span>
+          <div class="data-container">
+            <span class="value"
+              >{data.altitude[data.altitude.length - 1]?.[0] ?? 0 / 1e9}</span
+            >
+            <span class="unit">s</span>
+          </div>
         </div>
       </div>
     </div>
-    <div>
-      <section>
-        Humidity [%]
-        <Chart
-          labels={data.humidity.map((x) => Number(x[0]))}
-          datasets={[
-            { label: "Humidity", data: data.humidity.map((x) => Number(x[1])) },
-          ]}
-          title={["Time [s]"]}
-        />
-      </section>
-      <div class="data-visualizer">
-        <span class="label" style="color:aqua;">Humidity</span>
-        <div class="data-container">
-          <span class="value"
-            >{data.humidity[data.humidity.length - 1]?.[1] ?? 0}</span
-          >
-          <span class="unit">%</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="real-time">
-    <RealTime
-      state={States.GPS}
-      latitude={data.latitude}
-      longitude={data.longitude}
-      timestamp={parseFloat(
-        String(data.altitude[data.altitude.length - 1]?.[0] ?? 0),
-      ).toFixed(2)}
-    ></RealTime>
-    <textarea class="gps-data" readonly>{gpsdataArray.join("\n")}</textarea>
-  </div>
-</body>
+  </div></body
+>
 
 <style>
   @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
@@ -412,12 +434,10 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
+    justify-content: left;
+    padding: 0.5rem;
     gap: 2rem;
+    height: auto;
   }
   .name {
     font-size: 20px;
@@ -437,6 +457,18 @@
     border-radius: 10px;
     padding: 1.5rem;
     width: 100%;
+    box-sizing: border-box;
+  }
+  .live-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    background-color: #1a1b1e;
+    margin-top: 20px;
+    border-radius: 10px;
+    padding: 1.5rem;
+    width: 20%;
     box-sizing: border-box;
   }
   .label {
@@ -465,21 +497,14 @@
     color: white;
   }
   .real-time {
+    width: 50%;
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    width: 100%;
-    position: relative;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 0;
-    padding-bottom: 0;
-    gap: 20px;
+    flex-direction: column;
+    gap: 1rem;
   }
   .gps-data {
-    width: 110rem;
-    height: 50vh;
+    width: 30vw;
+    height: 15vw;
     background-color: #1a1b1e;
     color: white;
     border-radius: 10px;
@@ -491,15 +516,27 @@
     white-space: pre;
     overflow-y: auto;
   }
-  #current-time {
-    font-size: 1.2rem;
-    color: black;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 10px;
-    padding-bottom: 0;
-    position: absolute;
-    top: 0px;
-    right: 20px;
+
+  .graphs-container {
+    display: flex;
+    flex-direction: column;
+  }
+  .dashboard {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 2rem;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .real-time-bottom {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: left;
+    align-items: center;
+    width: 100%;
   }
 </style>

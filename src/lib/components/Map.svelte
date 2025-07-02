@@ -51,8 +51,4 @@
   }
 </script>
 
-<div
-  id="map"
-  style="height:50vh;width:150%; transform:translate(-15%); margin-bottom: 23%;"
-  use:mapAction
-/>
+<div id="map" style="height:50vh; width: 100%;" use:mapAction />
