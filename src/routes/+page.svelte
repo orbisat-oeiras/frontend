@@ -304,9 +304,7 @@
         endpoint,
         timestamp
       );
-      if (response) {
-        alert("Packet sent!");
-      } else {
+      if (!response) {
         alert("Failed to send packet.");
       }
     } catch (e) {
