@@ -5,6 +5,7 @@
   import logo from "$lib/images/OrbisatLogo.png";
   import RealTime from "../lib/components/RealTime.svelte";
   import gif from "$lib/images/Speed-of-sound.gif";
+  import { sendPacketsFromCode } from "$lib/components/SendPackets";
 
   // This code is related to getting the data from the server.
 
@@ -276,6 +277,46 @@
       element.innerHTML = `Current Time: ${currentTimestamp.toFixed(2)} s`;
     }
   }
+
+  let currentPage: string = "home";
+  function updatePage() {
+    currentPage = window.location.hash.replace("#", "") || "home";
+  }
+  onMount(() => {
+    window.addEventListener("hashchange", updatePage);
+    updatePage();
+  });
+
+  let selectedCode = "";
+  const packets = [
+    { code: "1", name: "Ping" },
+    { code: "2", name: "Hello World" },
+  ];
+  const endpoint = "https://localhost:7097/api/PostPacket";
+
+  async function sendPackets() {
+    try {
+      const timestamp =
+        BigInt(Math.floor(performance.timeOrigin * 1_000_000)) +
+        BigInt(Math.floor(performance.now() * 1_000_000));
+      const response = await sendPacketsFromCode(
+        selectedCode,
+        endpoint,
+        timestamp
+      );
+      if (response) {
+        alert("Packet sent!");
+      } else {
+        alert("Failed to send packet.");
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        alert(e.message);
+      } else {
+        alert(String(e));
+      }
+    }
+  }
 </script>
 
 <body>
@@ -284,136 +325,173 @@
   >
     <img src={logo} alt="Orbisat Logo" style="height:3rem; width:auto" />
     <p class="name" style="margin: 0 0 0 10px;">Orbisat Oeiras</p>
+    <button on:click={() => (window.location.hash = "home")} class="switch-page"
+      >Main Page</button
+    >
+    <button
+      on:click={() => (window.location.hash = "sensorStatus")}
+      class="switch-page">Sensor Status</button
+    >
+    <button
+      on:click={() => (window.location.hash = "sendTc")}
+      class="switch-page">Send TC</button
+    >
   </nav>
-  <div class="dashboard">
-    <div class="graphs-container">
-      <div class="graphs-div">
-        <div>
-          <section>
-            Pressure [Pa]
-            <Chart
-              labels={data.pressure.map((x) => Number(x[0]))}
-              datasets={[
-                {
-                  label: "Altitude",
-                  data: data.pressure.map((x) => Number(x[1])),
-                },
-              ]}
-              title={["Time[s]"]}
-            />
-          </section>
-          <div class="data-visualizer">
-            <span class="label" style="color:darkviolet">Pressure</span>
-            <div class="data-container">
-              <span class="value"
-                >{data.pressure[data.pressure.length - 1]?.[1] ?? 0}</span
-              >
-              <span class="unit">Pa</span>
+  {#if currentPage === "home"}
+    <div class="dashboard">
+      <div class="graphs-container">
+        <div class="graphs-div">
+          <div>
+            <section>
+              Pressure [Pa]
+              <Chart
+                labels={data.pressure.map((x) => Number(x[0]))}
+                datasets={[
+                  {
+                    label: "Altitude",
+                    data: data.pressure.map((x) => Number(x[1])),
+                  },
+                ]}
+                title={["Time[s]"]}
+              />
+            </section>
+            <div class="data-visualizer">
+              <span class="label" style="color:darkviolet">Pressure</span>
+              <div class="data-container">
+                <span class="value"
+                  >{data.pressure[data.pressure.length - 1]?.[1] ?? 0}</span
+                >
+                <span class="unit">Pa</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <section>
+              Altitude [m]
+              <Chart
+                labels={data.altitude.map((x) => Number(x[0]))}
+                datasets={[
+                  {
+                    label: "Altitude",
+                    data: data.altitude.map((x) => Number(x[1])),
+                  },
+                ]}
+                title={["Time [s]"]}
+              />
+            </section>
+            <div class="data-visualizer">
+              <span class="label" style="color:aqua;">Altitude</span>
+              <div class="data-container">
+                <span class="value"
+                  >{data.altitude[data.altitude.length - 1]?.[1] ?? 0}</span
+                >
+                <span class="unit">m</span>
+              </div>
             </div>
           </div>
         </div>
-
-        <div>
-          <section>
-            Altitude [m]
-            <Chart
-              labels={data.altitude.map((x) => Number(x[0]))}
-              datasets={[
-                {
-                  label: "Altitude",
-                  data: data.altitude.map((x) => Number(x[1])),
-                },
-              ]}
-              title={["Time [s]"]}
-            />
-          </section>
-          <div class="data-visualizer">
-            <span class="label" style="color:aqua;">Altitude</span>
-            <div class="data-container">
-              <span class="value"
-                >{data.altitude[data.altitude.length - 1]?.[1] ?? 0}</span
-              >
-              <span class="unit">m</span>
+        <div class="graphs-div">
+          <div>
+            <section>
+              Temperature [ºC]
+              <Chart
+                labels={data.temperature.map((x) => Number(x[0]))}
+                datasets={[
+                  {
+                    label: "Temperature",
+                    data: data.temperature.map((x) => Number(x[1])),
+                  },
+                ]}
+                title={["Time [s]"]}
+              />
+            </section>
+            <div class="data-visualizer">
+              <span class="label" style="color:crimson">Temperature</span>
+              <div class="data-container">
+                <span class="value"
+                  >{data.temperature[data.temperature.length - 1]?.[1] ??
+                    0}</span
+                >
+                <span class="unit">ºC</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <section>
+              Humidity [%]
+              <Chart
+                labels={data.humidity.map((x) => Number(x[0]))}
+                datasets={[
+                  {
+                    label: "Humidity",
+                    data: data.humidity.map((x) => Number(x[1])),
+                  },
+                ]}
+                title={["Time [s]"]}
+              />
+            </section>
+            <div class="data-visualizer">
+              <span class="label" style="color:aqua;">Humidity</span>
+              <div class="data-container">
+                <span class="value"
+                  >{data.humidity[data.humidity.length - 1]?.[1] ?? 0}</span
+                >
+                <span class="unit">%</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="graphs-div">
-        <div>
-          <section>
-            Temperature [ºC]
-            <Chart
-              labels={data.temperature.map((x) => Number(x[0]))}
-              datasets={[
-                {
-                  label: "Temperature",
-                  data: data.temperature.map((x) => Number(x[1])),
-                },
-              ]}
-              title={["Time [s]"]}
-            />
-          </section>
-          <div class="data-visualizer">
-            <span class="label" style="color:crimson">Temperature</span>
+      <div class="real-time">
+        <RealTime
+          state={States.GPS}
+          latitude={data.latitude}
+          longitude={data.longitude}
+          timestamp={parseFloat(
+            String(data.altitude[data.altitude.length - 1]?.[0] ?? 0)
+          ).toFixed(2)}
+        ></RealTime>
+        <div class="real-time-bottom">
+          <textarea class="gps-data" readonly
+            >{gpsdataArray.join("\n")}</textarea
+          >
+
+          <div class="live-status">
+            <span class="label" style="color:crimson">Current Timestamp</span>
             <div class="data-container">
               <span class="value"
-                >{data.temperature[data.temperature.length - 1]?.[1] ?? 0}</span
+                >{data.altitude[data.altitude.length - 1]?.[0] ?? 0 / 1e9}</span
               >
-              <span class="unit">ºC</span>
-            </div>
-          </div>
-        </div>
-        <div>
-          <section>
-            Humidity [%]
-            <Chart
-              labels={data.humidity.map((x) => Number(x[0]))}
-              datasets={[
-                {
-                  label: "Humidity",
-                  data: data.humidity.map((x) => Number(x[1])),
-                },
-              ]}
-              title={["Time [s]"]}
-            />
-          </section>
-          <div class="data-visualizer">
-            <span class="label" style="color:aqua;">Humidity</span>
-            <div class="data-container">
-              <span class="value"
-                >{data.humidity[data.humidity.length - 1]?.[1] ?? 0}</span
-              >
-              <span class="unit">%</span>
+              <span class="unit">s</span>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="real-time">
-      <RealTime
-        state={States.GPS}
-        latitude={data.latitude}
-        longitude={data.longitude}
-        timestamp={parseFloat(
-          String(data.altitude[data.altitude.length - 1]?.[0] ?? 0)
-        ).toFixed(2)}
-      ></RealTime>
-      <div class="real-time-bottom">
-        <textarea class="gps-data" readonly>{gpsdataArray.join("\n")}</textarea>
-
-        <div class="live-status">
-          <span class="label" style="color:crimson">Current Timestamp</span>
-          <div class="data-container">
-            <span class="value"
-              >{data.altitude[data.altitude.length - 1]?.[0] ?? 0 / 1e9}</span
-            >
-            <span class="unit">s</span>
-          </div>
+  {:else if currentPage === "sensorStatus"}
+    <h1 style="color:white; margin:2rem; text-align: center;">Sensor Status</h1>
+    <div class="status-container">
+      <div class="status-visualizer">
+        <span class="label" style="color:cadetblue;">
+          BME280 (Pressure, Temperature, Humidity)
+        </span>
+        <div class="data-container">
+          <span class="value" style="color:lightgreen">Connected</span>
         </div>
       </div>
     </div>
-  </div></body
->
+  {:else if currentPage === "sendTc"}
+    <h1 style="color:white; margin:2rem;">Send TC Page</h1>
+    <select bind:value={selectedCode}>
+      <option value="" disabled>Select a packet</option>
+      {#each packets as p}
+        <option value={p.code}>{p.code} - {p.name}</option>
+      {/each}
+    </select>
+    <button on:click={sendPackets}>Send Packet</button>
+  {/if}
+</body>
 
 <style>
   @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
@@ -538,5 +616,39 @@
     justify-content: left;
     align-items: center;
     width: 100%;
+  }
+  .switch-page {
+    margin-left: 2rem;
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .status-container {
+    margin-top: 2rem;
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 2rem;
+  }
+  .status-visualizer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    background-color: #1a1b1e;
+    border-radius: 10px;
+    padding: 1.5rem;
+    width: 20%;
+    height: 30rem;
+    box-sizing: border-box;
   }
 </style>

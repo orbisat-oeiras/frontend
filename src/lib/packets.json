@@ -1,0 +1,28 @@
+[
+  {
+    "code": "1",
+    "name": "Ping",
+    "description": "A simple ping packet to check connectivity.",
+    "packet": {
+      "deviceId": 1,
+      "payload": {
+        "value": "Pinging!"
+      },
+      "timestamp": 0,
+      "type": 0
+    }
+  },
+  {
+    "code": "2",
+    "name": "Hello World!",
+    "description": "Sends Hello World to the server.",
+    "packet": {
+      "deviceId": 1,
+      "payload": {
+        "value": "Hello, world!"
+      },
+      "timestamp": 0,
+      "type": 0
+    }
+  }
+]
