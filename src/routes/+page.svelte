@@ -501,7 +501,7 @@
         class="editor"
         bind:value={packetText}
         rows="15"
-        cols="80"
+        cols="75"
         on:input={() => {
           selectedCode = "32";
         }}
@@ -704,7 +704,7 @@
     gap: 0.5rem;
     justify-content: center;
     align-items: center;
-    max-width: 200px;
+    max-width: 300px;
     text-align: center;
   }
 </style>
