@@ -6,6 +6,7 @@
   import RealTime from "../lib/components/RealTime.svelte";
   import gif from "$lib/images/Speed-of-sound.gif";
   import { sendPacketsFromCode } from "$lib/components/SendPackets";
+  import packetsJson from "$lib/packets.json";
 
   // This code is related to getting the data from the server.
 
@@ -287,12 +288,23 @@
     updatePage();
   });
 
+  let packetSentResponse: string = "";
   let selectedCode = "";
+  let packetText = "";
   const packets = [
     { code: "1", name: "Ping" },
     { code: "2", name: "Hello World" },
+    { code: "32", name: "Custom Packet" },
   ];
   const endpoint = "https://localhost:7097/api/PostPacket";
+  $: if (selectedCode !== "32") {
+    packetText =
+      JSON.stringify(
+        packetsJson.find((p) => p.code === selectedCode)?.packet,
+        null,
+        2
+      ) ?? "";
+  }
 
   async function sendPackets() {
     try {
@@ -300,10 +312,13 @@
         BigInt(Math.floor(performance.timeOrigin * 1_000_000)) +
         BigInt(Math.floor(performance.now() * 1_000_000));
       const response = await sendPacketsFromCode(
-        selectedCode,
+        packetText,
         endpoint,
         timestamp
       );
+      if (response) {
+        packetSentResponse = `Packet sent successfully! Server response: ${response.status} ${response.statusText}`;
+      }
       if (!response) {
         alert("Failed to send packet.");
       }
@@ -481,13 +496,35 @@
     </div>
   {:else if currentPage === "sendTc"}
     <h1 style="color:white; margin:2rem;">Send TC Page</h1>
-    <select bind:value={selectedCode}>
-      <option value="" disabled>Select a packet</option>
-      {#each packets as p}
-        <option value={p.code}>{p.code} - {p.name}</option>
-      {/each}
-    </select>
-    <button on:click={sendPackets}>Send Packet</button>
+    <div class="tcpage">
+      <textarea
+        class="editor"
+        bind:value={packetText}
+        rows="15"
+        cols="80"
+        on:input={() => {
+          selectedCode = "32";
+        }}
+      ></textarea>
+      <div class="tcselector">
+        <select
+          bind:value={selectedCode}
+          style="width: 200px; height: 30px; font-family: 'Lato', sans-serif; font-size: 16px;"
+        >
+          <option value="" disabled>Select a packet</option>
+          {#each packets as p}
+            <option value={p.code}>{p.code} - {p.name}</option>
+          {/each}
+        </select>
+        <button
+          on:click={sendPackets}
+          class="switch-page"
+          style="background-color: #4eff47 !important">Send Packet</button
+        >
+        <span class="value" style="font-size: 1.5rem">{packetSentResponse}</span
+        >
+      </div>
+    </div>
   {/if}
 </body>
 
@@ -648,5 +685,26 @@
     width: 20%;
     height: 30rem;
     box-sizing: border-box;
+  }
+  .editor {
+    background-color: #1a1b1e;
+    color: white;
+    font-family: monospace;
+    font-size: 2rem;
+  }
+  .tcpage {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  .tcselector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    max-width: 200px;
+    text-align: center;
   }
 </style>

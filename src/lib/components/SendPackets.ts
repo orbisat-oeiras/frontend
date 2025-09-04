@@ -15,9 +15,7 @@ export async function sendPacketsFromCode(
   server: string,
   timestamp: bigint
 ) {
-  const found = packets.find((p) => p.code === code);
-  if (!found) throw new Error("Packet code not found");
-  const packetToSend = JSON.parse(JSON.stringify(found.packet));
+  const packetToSend = JSON.parse(code);
   packetToSend.payload.value = base64Encode(packetToSend.payload.value);
   packetToSend.timestamp = timestamp.toString();
   const response = await fetch(server, {
@@ -28,5 +26,5 @@ export async function sendPacketsFromCode(
     body: JSON.stringify(packetToSend),
   });
 
-  return response.ok;
+  return response;
 }
