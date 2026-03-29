@@ -4,7 +4,6 @@
   import { onMount } from "svelte";
   import logo from "$lib/images/OrbisatLogo.png";
   import RealTime from "../lib/components/RealTime.svelte";
-  import gif from "$lib/images/Speed-of-sound.gif";
   import { sendPacketsFromCode } from "$lib/components/SendPackets";
   import packetsJson from "$lib/packets.json";
 
@@ -20,6 +19,7 @@
     accelerationx: Datapoint;
     accelerationy: Datapoint;
     accelerationz: Datapoint;
+    system: Datapoint;
     latitude: number;
     longitude: number;
   };
@@ -31,6 +31,7 @@
     accelerationx: [],
     accelerationy: [],
     accelerationz: [],
+    system: [],
     latitude: 0,
     longitude: 0,
   };
@@ -40,9 +41,6 @@
     var rndedNum = Math.round(number * multiple) / multiple;
     return rndedNum;
   }
-  var backend: string = "";
-  var videoSource: string = "";
-  let formattedTime = "";
   var gpsdataArray: string[];
   let firstTimestamp: number | null = null;
   let currentTimestamp: number;
@@ -60,11 +58,13 @@
 
   onMount(async () => {
     var backend = String(
-      prompt("Insert the server (default is https://localhost:7097/api/SSE) - ")
+      prompt(
+        "Insert the server (default is https://localhost:7097/api/SSE) - ",
+      ),
     );
 
     const eventSource = new EventSource(
-      backend == "" ? "https://localhost:7097/api/SSE" : backend
+      backend == "" ? "https://localhost:7097/api/SSE" : backend,
     ); // THE SERVER
 
     // Each of these is responsible for listening to and storing one specific datapoint (as well as its metadata)
@@ -87,7 +87,7 @@
       if (lastAltitudeTimestamp !== null) {
         packetTimeDelayAltitude = timeOffset - lastAltitudeTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayAltitude} seconds`
+          `Packet Time Delay Altitude: ${packetTimeDelayAltitude} seconds`,
         );
         if (packetTimeDelayAltitude !== null && packetTimeDelayAltitude > 0.6) {
           var amountofPacketsToFill = Math.floor(packetTimeDelayAltitude / 0.5);
@@ -134,14 +134,14 @@
       if (lastTemperatureTimestamp !== null) {
         packetTimeDelayTemperature = timeOffset - lastTemperatureTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayTemperature} seconds`
+          `Packet Time Delay Altitude: ${packetTimeDelayTemperature} seconds`,
         );
         if (
           packetTimeDelayTemperature !== null &&
           packetTimeDelayTemperature > 0.6
         ) {
           var amountofPacketsToFill = Math.floor(
-            packetTimeDelayTemperature / 0.5
+            packetTimeDelayTemperature / 0.5,
           );
           for (let i = 0; i < amountofPacketsToFill; i++) {
             data.temperature = [
@@ -174,7 +174,7 @@
       if (lastPressureTimestamp !== null) {
         packetTimeDelayPressure = timeOffset - lastPressureTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayPressure} seconds`
+          `Packet Time Delay Altitude: ${packetTimeDelayPressure} seconds`,
         );
         if (packetTimeDelayPressure !== null && packetTimeDelayPressure > 0.6) {
           var amountofPacketsToFill = Math.floor(packetTimeDelayPressure / 0.5);
@@ -210,7 +210,7 @@
       if (lastHumidityTimestamp !== null) {
         packetTimeDelayHumidity = timeOffset - lastHumidityTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayHumidity} seconds`
+          `Packet Time Delay Altitude: ${packetTimeDelayHumidity} seconds`,
         );
         if (packetTimeDelayHumidity !== null && packetTimeDelayHumidity > 0.6) {
           var amountofPacketsToFill = Math.floor(packetTimeDelayHumidity / 0.5);
@@ -267,6 +267,14 @@
         [timeOffset, Number(event.data.split("@")[0])],
       ];
     });
+    eventSource.addEventListener("system", (event) => {
+      let metadata = JSON.parse(event.data.split("@")[1]);
+      console.log("System Event:", metadata);
+      data.system = [
+        ...data.system,
+        [Number(metadata["Timestamp"]), metadata["Value"]],
+      ];
+    });
   });
   $: if (data == data) {
     console.log(data);
@@ -294,6 +302,7 @@
   const packets = [
     { code: "1", name: "Ping" },
     { code: "2", name: "Hello World" },
+    { code: "3", name: "Synchronize time" },
     { code: "32", name: "Custom Packet" },
   ];
   const endpoint = "https://localhost:7097/api/PostPacket";
@@ -302,19 +311,17 @@
       JSON.stringify(
         packetsJson.find((p) => p.code === selectedCode)?.packet,
         null,
-        2
+        2,
       ) ?? "";
   }
 
   async function sendPackets() {
     try {
-      const timestamp =
-        BigInt(Math.floor(performance.timeOrigin * 1_000_000)) +
-        BigInt(Math.floor(performance.now() * 1_000_000));
+      const timestamp = BigInt(Date.now() * 1000);
       const response = await sendPacketsFromCode(
         packetText,
         endpoint,
-        timestamp
+        timestamp,
       );
       if (response) {
         packetSentResponse = `Packet sent successfully! Server response: ${response.status} ${response.statusText}`;
@@ -324,9 +331,26 @@
       }
     } catch (e) {
       if (e instanceof Error) {
-        alert(e.message);
+        if (e.message.includes("Load failed")) {
+          packetSentResponse = "Error: Unable to reach server.";
+        } else packetSentResponse = `Error: ${e.message}`;
       } else {
-        alert(String(e));
+        packetSentResponse = "An unknown error occurred.";
+      }
+    }
+  }
+  let gpsTextArea: HTMLTextAreaElement;
+  $: {
+    gpsdataArray;
+    if (gpsTextArea) {
+      const isNearBottom =
+        gpsTextArea.scrollHeight -
+          gpsTextArea.scrollTop -
+          gpsTextArea.clientHeight <
+        50;
+      if (isNearBottom) {
+        // Stop autoscroll if user has scrolled up
+        gpsTextArea.scrollTop = gpsTextArea.scrollHeight;
       }
     }
   }
@@ -344,6 +368,10 @@
     <button
       on:click={() => (window.location.hash = "sensorStatus")}
       class="switch-page">Sensor Status</button
+    >
+    <button
+      on:click={() => (window.location.hash = "liveMap")}
+      class="switch-page">Live Map</button
     >
     <button
       on:click={() => (window.location.hash = "sendTc")}
@@ -462,15 +490,15 @@
           latitude={data.latitude}
           longitude={data.longitude}
           timestamp={parseFloat(
-            String(data.altitude[data.altitude.length - 1]?.[0] ?? 0)
+            String(data.altitude[data.altitude.length - 1]?.[0] ?? 0),
           ).toFixed(2)}
         ></RealTime>
         <div class="real-time-bottom">
-          <textarea class="gps-data" readonly
+          <!-- <textarea class="gps-data" readonly
             >{gpsdataArray.join("\n")}</textarea
-          >
+          > -->
 
-          <div class="live-status">
+          <div class="data-visualizer">
             <span class="label" style="color:crimson">Current Timestamp</span>
             <div class="data-container">
               <span class="value"
@@ -493,6 +521,22 @@
           <span class="value" style="color:lightgreen">Connected</span>
         </div>
       </div>
+    </div>
+  {:else if currentPage === "liveMap"}
+    <div class="livemap">
+      <textarea bind:this={gpsTextArea} class="gps-data" readonly
+        >{gpsdataArray.join("\n")}</textarea
+      >
+      <RealTime
+        state={States.GPS}
+        latitude={data.latitude}
+        longitude={data.longitude}
+        timestamp={parseFloat(
+          String(data.altitude[data.altitude.length - 1]?.[0] ?? 0),
+        ).toFixed(2)}
+        height="70vh"
+        width="100%"
+      ></RealTime>
     </div>
   {:else if currentPage === "sendTc"}
     <h1 style="color:white; margin:2rem;">Send TC Page</h1>
@@ -572,18 +616,6 @@
     width: 100%;
     box-sizing: border-box;
   }
-  .live-status {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    background-color: #1a1b1e;
-    margin-top: 20px;
-    border-radius: 10px;
-    padding: 1.5rem;
-    width: 20%;
-    box-sizing: border-box;
-  }
   .label {
     font-size: 15px;
     font-weight: bold;
@@ -617,7 +649,7 @@
   }
   .gps-data {
     width: 30vw;
-    height: 15vw;
+    height: 60vh;
     background-color: #1a1b1e;
     color: white;
     border-radius: 10px;
@@ -646,10 +678,10 @@
   }
   .real-time-bottom {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 1rem;
     justify-content: left;
-    align-items: center;
+    align-items: left;
     width: 100%;
   }
   .switch-page {
@@ -688,6 +720,8 @@
   }
   .editor {
     background-color: #1a1b1e;
+    border-width: 0;
+    border-radius: 10px;
     color: white;
     font-family: monospace;
     font-size: 2rem;
@@ -706,5 +740,11 @@
     align-items: center;
     max-width: 300px;
     text-align: center;
+  }
+  .livemap {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    padding: 2rem;
   }
 </style>

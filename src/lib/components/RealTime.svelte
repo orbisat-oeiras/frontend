@@ -7,8 +7,10 @@
   export let latitude: number;
   export let longitude: number;
   export let timestamp: string;
+  export let height: string = "50vh";
+  export let width: string = "100%";
 </script>
 
 {#if state == States.GPS}
-  <Map {latitude} {longitude} {timestamp} />
+  <Map {latitude} {longitude} {timestamp} {height} {width} />
 {/if}

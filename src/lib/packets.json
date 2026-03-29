@@ -4,7 +4,7 @@
     "name": "Ping",
     "description": "A simple ping packet to check connectivity.",
     "packet": {
-      "deviceId": 1,
+      "deviceId": 2,
       "payload": {
         "value": "Pinging!"
       },
@@ -17,12 +17,25 @@
     "name": "Hello World!",
     "description": "Sends Hello World to the server.",
     "packet": {
-      "deviceId": 1,
+      "deviceId": 2,
       "payload": {
         "value": "Hello, world!"
       },
       "timestamp": 0,
       "type": 0
+    }
+  },
+  {
+    "code": "3",
+    "name": "Synchronize time",
+    "description": "Sends a SyncTime request to the CanSat.",
+    "packet": {
+      "deviceId": 1,
+      "payload": {
+        "value": "SYNC"
+      },
+      "timestamp": 0,
+      "type": 1
     }
   }
 ]
