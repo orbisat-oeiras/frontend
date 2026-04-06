@@ -21,8 +21,6 @@
   // I only added it because maybe we will have more than one line for the altitude chart.
   export let showLegends = false;
 
-  export let maxDataPoints = 170; // We need this because performance gets very poor with many points.
-
   // This function runs when the chart is mounted to the DOM.
   onMount(() => {
     // This is used so we can get a nice canvas to draw the chart on.
@@ -56,7 +54,11 @@
         spanGaps: false,
         elements: {
           point: {
-            radius: 2,
+            radius: 0,
+            hitRadius: 10,
+          },
+          line: {
+            borderWidth: 2,
           },
         },
         animation: {
@@ -71,6 +73,11 @@
         scales: {
           x: {
             display: true,
+            ticks: {
+              maxTicksLimit: 6,
+              maxRotation: 0,
+              autoSkip: true,
+            },
             // This is all related to the way the title of the chart is displayed
             title: {
               display: true,
@@ -109,24 +116,10 @@
     };
   });
   $: if (chart && datasets) {
-    // Trim labels if they exceed maxDataPoints
-    const trimmedLabels = labels.slice(-maxDataPoints);
-    chart.data.labels = trimmedLabels;
-
-    datasets.forEach((newDs, i) => {
-      const trimmedData = newDs.data.slice(-maxDataPoints);
-
-      if (!chart.data.datasets[i]) {
-        chart.data.datasets[i] = {
-          label: newDs.label,
-          data: trimmedData,
-          borderColor: newDs.borderColor ?? "rgb(215,127,43)",
-          backgroundColor: newDs.backgroundColor ?? "rgba(215,127,43,0.2)",
-          fill: false,
-          tension: 0,
-        };
-      } else {
-        chart.data.datasets[i].data = trimmedData;
+    chart.data.labels = labels;
+    chart.data.datasets.forEach((dataset, index) => {
+      if (datasets[index]) {
+        dataset.data = datasets[index].data;
       }
     });
 

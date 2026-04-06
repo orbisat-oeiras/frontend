@@ -42,7 +42,6 @@
     return rndedNum;
   }
   var gpsdataArray: string[];
-  let firstTimestamp: number | null = null;
   let currentTimestamp: number;
   let packetTimeDelayAltitude: number | null = null;
   let packetTimeDelayPressure: number | null = null;
@@ -53,6 +52,8 @@
   let lastTemperatureTimestamp: number | null = null;
   let lastHumidityTimestamp: number | null = null;
   let lastPressureTimestamp: number | null = null;
+
+  let rawTimestamp = 0;
 
   gpsdataArray = [];
 
@@ -77,224 +78,163 @@
       data.latitude = Number(metadata.Coordinates.Latitude);
       data.longitude = Number(metadata.Coordinates.Longitude);
 
-      const rawTimestamp = Number(metadata["Timestamp"]);
-      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
+      rawTimestamp = Number(metadata.Timestamp);
 
-      currentTimestamp = timeOffset;
-      packetTimeDelayAltitude = 0;
+      currentTimestamp = Number(metadata.Timestamp) / 1e3; // Turn it to milliseconds
 
       if (lastAltitudeTimestamp !== null) {
-        packetTimeDelayAltitude = timeOffset - lastAltitudeTimestamp;
+        packetTimeDelayAltitude = currentTimestamp - lastAltitudeTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayAltitude} seconds`,
+          `Packet Time Delay Altitude: ${packetTimeDelayAltitude} milliseconds`,
         );
-        if (packetTimeDelayAltitude !== null && packetTimeDelayAltitude > 0.6) {
-          var amountofPacketsToFill = Math.floor(packetTimeDelayAltitude / 0.5);
-          for (let i = 0; i < amountofPacketsToFill; i++) {
-            data.altitude = [
-              ...data.altitude,
-              [lastAltitudeTimestamp + 0.5, NaN],
-            ];
-            amountofPacketsToFill += 0.5;
+        if (packetTimeDelayAltitude > 600) {
+          // If it's older than 600 milliseconds
+          var amountofPacketsToFill = Math.floor(packetTimeDelayAltitude / 500);
+          for (let i = 1; i <= amountofPacketsToFill; i++) {
+            let missingTimestamp = lastAltitudeTimestamp + i * 500;
+            if (missingTimestamp < currentTimestamp) {
+              data.altitude = [
+                ...data.altitude,
+                [missingTimestamp, NaN] as [number, number],
+              ].slice(-170);
+            }
           }
         }
       }
-      lastAltitudeTimestamp = timeOffset;
-      // while (
-      //   packetTimeDelayAltitude !== null &&
-      //   packetTimeDelayAltitude > 0.6
-      // ) {
-      //   data.altitude = [...data.altitude, [lastTimestamp - 0.5, NaN]];
-      // }
+      lastAltitudeTimestamp = currentTimestamp;
 
       gpsdataArray = [
         ...gpsdataArray,
-        `Latitude: ${data.latitude}, Longitude: ${data.longitude}, Timestamp: ${timeOffset}`,
-      ];
+        `Latitude: ${data.latitude}, Longitude: ${data.longitude}, Timestamp: ${currentTimestamp}`,
+      ].slice(-500);
 
       data.altitude = [
         ...data.altitude,
-        [timeOffset, Number(event.data.split("@")[0])],
-      ];
+        [currentTimestamp, Number(event.data.split("@")[0])] as [
+          number,
+          number,
+        ],
+      ].slice(-170);
     });
     eventSource.addEventListener("temperature", (event) => {
-      console.log("temp");
-      let metadata = JSON.parse(event.data.split("@")[1]);
+      console.log("temperature");
+      let metadata = JSON.parse(String(event.data.split("@")[1]));
 
-      data.latitude = Number(metadata.Coordinates.Latitude);
-      data.longitude = Number(metadata.Coordinates.Longitude);
-
-      const rawTimestamp = Number(metadata["Timestamp"]);
-      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
-
-      packetTimeDelayTemperature = 0;
+      currentTimestamp = Number(metadata.Timestamp) / 1e3;
 
       if (lastTemperatureTimestamp !== null) {
-        packetTimeDelayTemperature = timeOffset - lastTemperatureTimestamp;
+        packetTimeDelayTemperature =
+          currentTimestamp - lastTemperatureTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayTemperature} seconds`,
+          `Packet Time Delay Temperature: ${packetTimeDelayTemperature} milliseconds`,
         );
-        if (
-          packetTimeDelayTemperature !== null &&
-          packetTimeDelayTemperature > 0.6
-        ) {
+        if (packetTimeDelayTemperature > 600) {
           var amountofPacketsToFill = Math.floor(
-            packetTimeDelayTemperature / 0.5,
+            packetTimeDelayTemperature / 500,
           );
-          for (let i = 0; i < amountofPacketsToFill; i++) {
-            data.temperature = [
-              ...data.temperature,
-              [lastTemperatureTimestamp + 0.5, NaN],
-            ];
-            amountofPacketsToFill += 0.5;
+          for (let i = 1; i <= amountofPacketsToFill; i++) {
+            let missingTimestamp = lastTemperatureTimestamp + i * 500;
+            if (missingTimestamp < currentTimestamp) {
+              data.temperature = [
+                ...data.temperature,
+                [missingTimestamp, NaN] as [number, number],
+              ].slice(-170);
+            }
           }
         }
       }
-      lastTemperatureTimestamp = timeOffset;
+      lastTemperatureTimestamp = currentTimestamp;
 
       data.temperature = [
         ...data.temperature,
-        [timeOffset, Number(event.data.split("@")[0])],
-      ];
+        [currentTimestamp, Number(event.data.split("@")[0])] as [
+          number,
+          number,
+        ],
+      ].slice(-170);
     });
     eventSource.addEventListener("pressure", (event) => {
-      let metadata = JSON.parse(event.data.split("@")[1]);
+      console.log("pressure");
+      let metadata = JSON.parse(String(event.data.split("@")[1]));
 
-      data.latitude = Number(metadata.Coordinates.Latitude);
-      data.longitude = Number(metadata.Coordinates.Longitude);
-
-      const rawTimestamp = Number(metadata["Timestamp"]);
-      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
-
-      packetTimeDelayPressure = 0;
+      currentTimestamp = Number(metadata.Timestamp) / 1e3;
 
       if (lastPressureTimestamp !== null) {
-        packetTimeDelayPressure = timeOffset - lastPressureTimestamp;
+        packetTimeDelayPressure = currentTimestamp - lastPressureTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayPressure} seconds`,
+          `Packet Time Delay Pressure: ${packetTimeDelayPressure} milliseconds`,
         );
-        if (packetTimeDelayPressure !== null && packetTimeDelayPressure > 0.6) {
-          var amountofPacketsToFill = Math.floor(packetTimeDelayPressure / 0.5);
-          for (let i = 0; i < amountofPacketsToFill; i++) {
-            data.pressure = [
-              ...data.pressure,
-              [lastPressureTimestamp + 0.5, NaN],
-            ];
-            amountofPacketsToFill += 0.5;
+        if (packetTimeDelayPressure > 600) {
+          var amountofPacketsToFill = Math.floor(packetTimeDelayPressure / 500);
+          for (let i = 1; i <= amountofPacketsToFill; i++) {
+            let missingTimestamp = lastPressureTimestamp + i * 500;
+            if (missingTimestamp < currentTimestamp) {
+              data.pressure = [
+                ...data.pressure,
+                [missingTimestamp, NaN] as [number, number],
+              ].slice(-170);
+            }
           }
         }
       }
-      lastPressureTimestamp = timeOffset;
+      lastPressureTimestamp = currentTimestamp;
 
       data.pressure = [
         ...data.pressure,
-        [timeOffset, Number(event.data.split("@")[0])],
-      ];
+        [currentTimestamp, Number(event.data.split("@")[0])] as [
+          number,
+          number,
+        ],
+      ].slice(-170);
     });
-
     eventSource.addEventListener("humidity", (event) => {
-      let metadata = JSON.parse(event.data.split("@")[1]);
+      console.log("humidity");
+      let metadata = JSON.parse(String(event.data.split("@")[1]));
 
-      data.latitude = Number(metadata.Coordinates.Latitude);
-      data.longitude = Number(metadata.Coordinates.Longitude);
-
-      const rawTimestamp = Number(metadata["Timestamp"]);
-      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
-
-      packetTimeDelayHumidity = 0;
+      currentTimestamp = Number(metadata.Timestamp) / 1e3;
 
       if (lastHumidityTimestamp !== null) {
-        packetTimeDelayHumidity = timeOffset - lastHumidityTimestamp;
+        packetTimeDelayHumidity = currentTimestamp - lastHumidityTimestamp;
         console.log(
-          `Packet Time Delay Altitude: ${packetTimeDelayHumidity} seconds`,
+          `Packet Time Delay Humidity: ${packetTimeDelayHumidity} seconds`,
         );
-        if (packetTimeDelayHumidity !== null && packetTimeDelayHumidity > 0.6) {
-          var amountofPacketsToFill = Math.floor(packetTimeDelayHumidity / 0.5);
-          for (let i = 0; i < amountofPacketsToFill; i++) {
-            data.humidity = [
-              ...data.humidity,
-              [lastHumidityTimestamp + 0.5, NaN],
-            ];
-            amountofPacketsToFill += 0.5;
+        if (packetTimeDelayHumidity > 600) {
+          var amountofPacketsToFill = Math.floor(packetTimeDelayHumidity / 500);
+          for (let i = 1; i <= amountofPacketsToFill; i++) {
+            let missingTimestamp = lastHumidityTimestamp + i * 500;
+            if (missingTimestamp < currentTimestamp) {
+              data.humidity = [
+                ...data.humidity,
+                [missingTimestamp, NaN] as [number, number],
+              ].slice(-170);
+            }
           }
         }
       }
-      lastHumidityTimestamp = timeOffset;
+      lastHumidityTimestamp = currentTimestamp;
 
       data.humidity = [
         ...data.humidity,
-        [timeOffset, Number(event.data.split("@")[0])],
-      ];
-    });
-
-    eventSource.addEventListener("accelerationx", (event) => {
-      let metadata = JSON.parse(event.data.split("@")[1]);
-
-      const rawTimestamp = Number(metadata["Timestamp"]);
-      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
-
-      data.accelerationx = [
-        ...data.accelerationx,
-        [timeOffset, Number(event.data.split("@")[0])],
-      ];
-    });
-    eventSource.addEventListener("accelerationy", (event) => {
-      let metadata = JSON.parse(event.data.split("@")[1]);
-
-      const rawTimestamp = Number(metadata["Timestamp"]);
-      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
-
-      data.accelerationy = [
-        ...data.accelerationy,
-        [timeOffset, Number(event.data.split("@")[0])],
-      ];
-    });
-    eventSource.addEventListener("accelerationz", (event) => {
-      let metadata = JSON.parse(event.data.split("@")[1]);
-
-      const rawTimestamp = Number(metadata["Timestamp"]);
-      if (firstTimestamp === null) firstTimestamp = rawTimestamp;
-      const timeOffset = roundNumber((rawTimestamp - firstTimestamp) / 1e9, 2);
-
-      data.accelerationz = [
-        ...data.accelerationz,
-        [timeOffset, Number(event.data.split("@")[0])],
-      ];
+        [currentTimestamp, Number(event.data.split("@")[0])] as [
+          number,
+          number,
+        ],
+      ].slice(-170);
     });
     eventSource.addEventListener("system", (event) => {
       let metadata = JSON.parse(event.data.split("@")[1]);
       console.log("System Event:", metadata);
       data.system = [
         ...data.system,
-        [Number(metadata["Timestamp"]), metadata["Value"]],
+        [Number(metadata.Timestamp), metadata["Value"]],
       ];
     });
   });
-  $: if (data == data) {
-    console.log(data);
-  }
-  $: currentTimestamp = data.altitude[data.altitude.length - 1]?.[0] ?? 0;
-  $: {
-    const element = document.getElementById("current-time");
-    if (element) {
-      element.innerHTML = `Current Time: ${currentTimestamp.toFixed(2)} s`;
-    }
-  }
 
   let currentPage: string = "home";
   function updatePage() {
     currentPage = window.location.hash.replace("#", "") || "home";
   }
-  onMount(() => {
-    window.addEventListener("hashchange", updatePage);
-    updatePage();
-  });
 
   let packetSentResponse: string = "";
   let selectedCode = "";
@@ -356,25 +296,39 @@
   }
 </script>
 
+<svelte:window on:hashchange={updatePage} />
 <body>
   <nav
     style="height: 3rem;  width: 100%; background-color: #EFFEFE; display:flex; align-items: left;"
   >
     <img src={logo} alt="Orbisat Logo" style="height:3rem; width:auto" />
     <p class="name" style="margin: 0 0 0 10px;">Orbisat Oeiras</p>
-    <button on:click={() => (window.location.hash = "home")} class="switch-page"
-      >Main Page</button
+    <button
+      on:click={() => {
+        window.location.hash = "home";
+        currentPage = "home";
+      }}
+      class="switch-page">Main Page</button
     >
     <button
-      on:click={() => (window.location.hash = "sensorStatus")}
+      on:click={() => {
+        window.location.hash = "sensorStatus";
+        currentPage = "sensorStatus";
+      }}
       class="switch-page">Sensor Status</button
     >
     <button
-      on:click={() => (window.location.hash = "liveMap")}
+      on:click={() => {
+        window.location.hash = "liveMap";
+        currentPage = "liveMap";
+      }}
       class="switch-page">Live Map</button
     >
     <button
-      on:click={() => (window.location.hash = "sendTc")}
+      on:click={() => {
+        window.location.hash = "sendTc";
+        currentPage = "sendTc";
+      }}
       class="switch-page">Send TC</button
     >
   </nav>
@@ -501,10 +455,8 @@
           <div class="data-visualizer">
             <span class="label" style="color:crimson">Current Timestamp</span>
             <div class="data-container">
-              <span class="value"
-                >{data.altitude[data.altitude.length - 1]?.[0] ?? 0 / 1e9}</span
-              >
-              <span class="unit">s</span>
+              <span class="value">{rawTimestamp}</span>
+              <span class="unit">µs</span>
             </div>
           </div>
         </div>
