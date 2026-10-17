@@ -22,6 +22,7 @@
     system: Datapoint;
     latitude: number;
     longitude: number;
+    mission1: number;
   };
   let data: Data = {
     pressure: [],
@@ -34,6 +35,7 @@
     system: [],
     latitude: 0,
     longitude: 0,
+    mission1: 0,
   };
 
   function roundNumber(number: number, digits: number) {
@@ -52,7 +54,7 @@
   let lastTemperatureTimestamp: number | null = null;
   let lastHumidityTimestamp: number | null = null;
   let lastPressureTimestamp: number | null = null;
-
+  let mission1Status: number;
   let rawTimestamp = 0;
   let offset = 0;
 
@@ -232,6 +234,12 @@
         [Number(metadata.Timestamp), metadata["Value"]],
       ];
     });
+    eventSource.addEventListener("mission1", (event) => {
+      const messageEvent = event as MessageEvent<string>;
+      const content = messageEvent.data.split("@")[0];
+      mission1Status = Number(content);
+      console.log("Mission1 Status:", mission1Status);
+    });
     const syncInterval = setInterval(sendTimeSync, 15000);
 
     // Optional: send one immediately on startup
@@ -359,6 +367,9 @@
       class="switch-page">Send TC</button
     >
     <span class="offset">Offset: {offset} µs</span>
+    <span class="offset" style="font-size: 2rem"
+      >Buzzer Status: {mission1Status > 0 ? "ON" : "OFF"}</span
+    >
   </nav>
   {#if currentPage === "home"}
     <div class="dashboard">
@@ -725,6 +736,5 @@
     margin-right: 2.5rem;
     align-items: center;
     font-weight: bold;
-    font-size: 2rem;
   }
 </style>
