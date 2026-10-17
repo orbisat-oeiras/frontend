@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as L from "leaflet";
   import "leaflet/dist/leaflet.css";
+  import { onDestroy } from "svelte";
 
   export let latitude: number;
   export let longitude: number;
@@ -8,41 +9,59 @@
   export let height: string = "50vh";
   export let width: string = "100%";
 
-  // Location for the map to start at.
-  const location = [latitude, longitude];
+  let map: L.Map | undefined;
+  let currentMarker: L.Marker | null = null;
+  let isDestroyed = false;
 
   function createMap(container: HTMLElement) {
-    console.log(typeof container);
-    let map = L.map(container).setView([location[0], location[1]], 16);
+    if ((container as any)._leaflet_id) {
+      delete (container as any)._leaflet_id;
+    }
+
+    const initialLat = typeof latitude === "number" && !isNaN(latitude) ? latitude : 0;
+    const initialLng = typeof longitude === "number" && !isNaN(longitude) ? longitude : 0;
+
+    let mapInstance = L.map(container).setView([initialLat, initialLng], 16);
     // We are getting the maps and tiles from https://www.openstreetmap.org/.
     // It is a free service, but they require giving appropriate crediting (attribution).
     // L.tileLayer("maps/Ilha de Santa Maria/{z}/{x}/{y}.png", {
     //   maxZoom: 16,
-    // }).addTo(map);
+    // }).addTo(mapInstance);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution:
         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
+    }).addTo(mapInstance);
 
-    return map;
+    return mapInstance;
+  }
+
+  function cleanup() {
+    isDestroyed = true;
+    if (map) {
+      map.remove();
+      map = undefined;
+    }
+    currentMarker = null;
   }
 
   function mapAction(container: HTMLElement) {
     map = createMap(container);
     return {
       destroy: () => {
-        map.remove();
+        cleanup();
       },
     };
   }
 
-  let map: L.Map;
-  let currentMarker: L.Marker | null = null;
+  onDestroy(() => {
+    cleanup();
+  });
 
   $: {
     if (
-      typeof map !== "undefined" &&
+      !isDestroyed &&
+      map &&
       typeof latitude === "number" &&
       typeof longitude === "number" &&
       typeof timestamp === "string" &&
@@ -50,12 +69,14 @@
       !isNaN(longitude)
     ) {
       if (currentMarker) {
-        map.removeLayer(currentMarker);
+        currentMarker.setLatLng([latitude, longitude]);
+        currentMarker.setPopupContent(`Timestamp: ${timestamp}`);
+      } else {
+        currentMarker = L.marker([latitude, longitude]).addTo(map);
+        currentMarker.bindPopup(`Timestamp: ${timestamp}`).openPopup();
       }
-      currentMarker = L.marker([latitude, longitude]).addTo(map);
-      currentMarker.bindPopup(`Timestamp: ${timestamp}`).openPopup();
     }
   }
 </script>
 
-<div id="map" style="height:{height}; width: {width};" use:mapAction />
+<div style="height:{height}; width: {width};" use:mapAction />

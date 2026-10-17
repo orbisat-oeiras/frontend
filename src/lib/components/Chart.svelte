@@ -112,7 +112,10 @@
     });
 
     return () => {
-      chart.destroy();
+      if (chart) {
+        chart.destroy();
+        chart = undefined as any;
+      }
     };
   });
   $: if (chart && datasets) {
@@ -133,7 +136,7 @@
 -->
 <div
   class="chart-container"
-  style="position: relative; height: 25vh; width: 24vw"
+  style="position: relative; height: 25vh; width: 30vw"
 >
   <!-- Bind the canvas for the graph with the canvas element -->
   <canvas bind:this={canvas}></canvas>

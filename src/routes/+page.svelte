@@ -54,10 +54,11 @@
   let lastPressureTimestamp: number | null = null;
 
   let rawTimestamp = 0;
+  let offset = 0;
 
   gpsdataArray = [];
 
-  onMount(async () => {
+  onMount(() => {
     var backend = String(
       prompt(
         "Insert the server (default is https://localhost:7097/api/SSE) - ",
@@ -81,6 +82,8 @@
       rawTimestamp = Number(metadata.Timestamp);
 
       currentTimestamp = Number(metadata.Timestamp) / 1e3; // Turn it to milliseconds
+
+      offset = metadata.Offset;
 
       if (lastAltitudeTimestamp !== null) {
         packetTimeDelayAltitude = currentTimestamp - lastAltitudeTimestamp;
@@ -229,20 +232,34 @@
         [Number(metadata.Timestamp), metadata["Value"]],
       ];
     });
+    const syncInterval = setInterval(sendTimeSync, 15000);
+
+    // Optional: send one immediately on startup
+    sendTimeSync();
+
+    // Clean up both the EventSource and the interval when the component is destroyed
+    return () => {
+      eventSource.close();
+      clearInterval(syncInterval);
+    };
   });
 
   let currentPage: string = "home";
   function updatePage() {
     currentPage = window.location.hash.replace("#", "") || "home";
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 50);
   }
 
   let packetSentResponse: string = "";
   let selectedCode = "";
   let packetText = "";
+
+  let deviceId = "";
   const packets = [
-    { code: "1", name: "Ping" },
-    { code: "2", name: "Hello World" },
-    { code: "3", name: "Synchronize time" },
+    { code: "1", name: "Toggle Buzzer" },
+    { code: "2", name: "Synchronize time" },
     { code: "32", name: "Custom Packet" },
   ];
   const endpoint = "https://localhost:7097/api/PostPacket";
@@ -254,7 +271,6 @@
         2,
       ) ?? "";
   }
-
   async function sendPackets() {
     try {
       const timestamp = BigInt(Date.now() * 1000);
@@ -279,7 +295,7 @@
       }
     }
   }
-  let gpsTextArea: HTMLTextAreaElement;
+  let gpsTextArea!: HTMLTextAreaElement;
   $: {
     gpsdataArray;
     if (gpsTextArea) {
@@ -294,12 +310,30 @@
       }
     }
   }
+  async function sendTimeSync() {
+    const timeSyncPacket =
+      JSON.stringify(
+        packetsJson.find((p) => p.code === "2")?.packet, // Explicitly use code "2" for Time Sync
+        null,
+        2,
+      ) ?? "";
+
+    if (!timeSyncPacket) return;
+
+    try {
+      const timestamp = BigInt(Date.now() * 1000);
+      await sendPacketsFromCode(timeSyncPacket, endpoint, timestamp);
+      console.log("Auto time-sync packet sent at", timestamp);
+    } catch (e) {
+      console.error("Auto time-sync failed:", e);
+    }
+  }
 </script>
 
 <svelte:window on:hashchange={updatePage} />
 <body>
   <nav
-    style="height: 3rem;  width: 100%; background-color: #EFFEFE; display:flex; align-items: left;"
+    style="height: 3rem;  width: 100%; background-color: #EFFEFE; display:flex; align-items: center;"
   >
     <img src={logo} alt="Orbisat Logo" style="height:3rem; width:auto" />
     <p class="name" style="margin: 0 0 0 10px;">Orbisat Oeiras</p>
@@ -319,18 +353,12 @@
     >
     <button
       on:click={() => {
-        window.location.hash = "liveMap";
-        currentPage = "liveMap";
-      }}
-      class="switch-page">Live Map</button
-    >
-    <button
-      on:click={() => {
         window.location.hash = "sendTc";
         currentPage = "sendTc";
       }}
       class="switch-page">Send TC</button
     >
+    <span class="offset">Offset: {offset} µs</span>
   </nav>
   {#if currentPage === "home"}
     <div class="dashboard">
@@ -347,7 +375,7 @@
                     data: data.pressure.map((x) => Number(x[1])),
                   },
                 ]}
-                title={["Time[s]"]}
+                title={["Time[ms]"]}
               />
             </section>
             <div class="data-visualizer">
@@ -372,7 +400,7 @@
                     data: data.altitude.map((x) => Number(x[1])),
                   },
                 ]}
-                title={["Time [s]"]}
+                title={["Time [ms]"]}
               />
             </section>
             <div class="data-visualizer">
@@ -398,7 +426,7 @@
                     data: data.temperature.map((x) => Number(x[1])),
                   },
                 ]}
-                title={["Time [s]"]}
+                title={["Time [ms]"]}
               />
             </section>
             <div class="data-visualizer">
@@ -423,7 +451,7 @@
                     data: data.humidity.map((x) => Number(x[1])),
                   },
                 ]}
-                title={["Time [s]"]}
+                title={["Time [ms]"]}
               />
             </section>
             <div class="data-visualizer">
@@ -439,25 +467,11 @@
         </div>
       </div>
       <div class="real-time">
-        <RealTime
-          state={States.GPS}
-          latitude={data.latitude}
-          longitude={data.longitude}
-          timestamp={parseFloat(
-            String(data.altitude[data.altitude.length - 1]?.[0] ?? 0),
-          ).toFixed(2)}
-        ></RealTime>
-        <div class="real-time-bottom">
-          <!-- <textarea class="gps-data" readonly
-            >{gpsdataArray.join("\n")}</textarea
-          > -->
-
-          <div class="data-visualizer">
-            <span class="label" style="color:crimson">Current Timestamp</span>
-            <div class="data-container">
-              <span class="value">{rawTimestamp}</span>
-              <span class="unit">µs</span>
-            </div>
+        <div class="data-visualizer">
+          <span class="label" style="color:crimson">Current Timestamp</span>
+          <div class="data-container">
+            <span class="value">{rawTimestamp}</span>
+            <span class="unit">µs</span>
           </div>
         </div>
       </div>
@@ -473,22 +487,6 @@
           <span class="value" style="color:lightgreen">Connected</span>
         </div>
       </div>
-    </div>
-  {:else if currentPage === "liveMap"}
-    <div class="livemap">
-      <textarea bind:this={gpsTextArea} class="gps-data" readonly
-        >{gpsdataArray.join("\n")}</textarea
-      >
-      <RealTime
-        state={States.GPS}
-        latitude={data.latitude}
-        longitude={data.longitude}
-        timestamp={parseFloat(
-          String(data.altitude[data.altitude.length - 1]?.[0] ?? 0),
-        ).toFixed(2)}
-        height="70vh"
-        width="100%"
-      ></RealTime>
     </div>
   {:else if currentPage === "sendTc"}
     <h1 style="color:white; margin:2rem;">Send TC Page</h1>
@@ -511,6 +509,28 @@
           {#each packets as p}
             <option value={p.code}>{p.code} - {p.name}</option>
           {/each}
+        </select>
+        <select
+          bind:value={deviceId}
+          style="width: 200px; height: 30px; font-family: 'Lato', sans-serif; font-size: 16px;"
+        >
+          <option value="" disabled>Select a packet</option>
+          <option value="0">0 - System</option>
+          <option value="1">1 - TimeSync</option>
+          <option value="2">2 - GPS</option>
+          <option value="3">3 - Camera</option>
+          <option value="4">4 - Accelerometer</option>
+          <option value="5">5 - Gyroscope</option>
+          <option value="6">6 - Altimeter</option>
+          <option value="7">7 - Magnetometer</option>
+          <option value="8">8 - PressureSensor</option>
+          <option value="9">9 - TemperatureSensor</option>
+          <option value="10">10 - HumiditySensor</option>
+          <option value="11">11 - RadiationSensor</option>
+          <option value="12">12 - Mission1 (BUZZER)</option>
+          <option value="13">13 - Mission2 (BUZZER)</option>
+          <option value="14">14 - Mission3 (BUZZER)</option>
+          <option value="15">15 - Mission4 (BUZZER)</option>
         </select>
         <button
           on:click={sendPackets}
@@ -698,5 +718,13 @@
     flex-direction: row;
     gap: 2rem;
     padding: 2rem;
+  }
+  .offset {
+    display: flex;
+    margin-left: auto;
+    margin-right: 2.5rem;
+    align-items: center;
+    font-weight: bold;
+    font-size: 2rem;
   }
 </style>
